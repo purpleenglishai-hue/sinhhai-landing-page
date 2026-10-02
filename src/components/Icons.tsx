@@ -1,9 +1,11 @@
+import logoAsset from "../assets/icon.png";
+
 export const LogoIcon = () => {
   return (
     <img 
-      src="/logo.png" 
+      src={logoAsset} 
       alt="Logo" 
-      className="mr-2 w-6 h-6 object-contain" 
+      className="mr-2 h-7 w-auto object-contain" 
     />
   );
 };
