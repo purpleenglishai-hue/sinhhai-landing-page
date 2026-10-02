@@ -17,7 +17,7 @@ import { Menu, LogIn, LogOut, User, Mail, Lock, AlertCircle, X } from "lucide-re
 import { ModeToggle } from "./mode-toggle";
 import { LogoIcon } from "./Icons";
 
-// Import Firebase Auth & Providers từ file firebase.ts nằm trong src
+// Import Firebase Auth & Providers
 import { auth, googleProvider, facebookProvider } from "../firebase";
 import {
   signInWithPopup,
@@ -53,14 +53,13 @@ export const Navbar = () => {
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [user, setUser] = useState<FirebaseUser | null>(null);
 
-  // State cho Form Email & Password
+  // State Form
   const [isRegister, setIsRegister] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [authError, setAuthError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Lắng nghe trạng thái đăng nhập Firebase
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -76,31 +75,28 @@ export const Navbar = () => {
     setLoading(false);
   };
 
-  // Đăng nhập Google
   const handleGoogleLogin = async () => {
     setAuthError("");
     try {
       await signInWithPopup(auth, googleProvider);
       closeAuthModal();
     } catch (error: any) {
-      console.error("Lỗi đăng nhập Google:", error);
-      setAuthError("Đăng nhập Google thất bại. Vui lòng thử lại!");
+      console.error("Lỗi Google Login:", error);
+      setAuthError("Đăng nhập Google thất bại!");
     }
   };
 
-  // Đăng nhập Facebook
   const handleFacebookLogin = async () => {
     setAuthError("");
     try {
       await signInWithPopup(auth, facebookProvider);
       closeAuthModal();
     } catch (error: any) {
-      console.error("Lỗi đăng nhập Facebook:", error);
+      console.error("Lỗi Facebook Login:", error);
       setAuthError("Đăng nhập Facebook thất bại!");
     }
   };
 
-  // Đăng nhập / Đăng ký bằng Email & Mật khẩu
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
@@ -114,13 +110,10 @@ export const Navbar = () => {
       }
       closeAuthModal();
     } catch (error: any) {
-      console.error("Lỗi Auth Email:", error);
       if (error.code === "auth/email-already-in-use") {
-        setAuthError("Email này đã được sử dụng!");
+        setAuthError("Email này đã được đăng ký!");
       } else if (error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
-        setAuthError("Email hoặc mật khẩu không chính xác!");
-      } else if (error.code === "auth/weak-password") {
-        setAuthError("Mật khẩu phải từ 6 ký tự trở lên!");
+        setAuthError("Email hoặc mật khẩu không đúng!");
       } else {
         setAuthError("Đã có lỗi xảy ra. Vui lòng thử lại!");
       }
@@ -129,7 +122,6 @@ export const Navbar = () => {
     }
   };
 
-  // Đăng xuất
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -139,39 +131,36 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background">
+    <header className="sticky border-b top-0 z-40 w-full bg-white/95 backdrop-blur dark:border-b-purple-900/40 dark:bg-background/95 border-purple-200">
       <NavigationMenu className="mx-auto">
-        <NavigationMenuList className="container h-14 px-4 w-screen flex justify-between ">
+        <NavigationMenuList className="container h-14 px-4 w-screen flex justify-between">
           <NavigationMenuItem className="font-bold flex">
             <a
               rel="noreferrer noopener"
               href="/"
-              className="ml-2 font-bold text-xl flex items-center gap-2"
+              className="ml-2 font-bold text-xl flex items-center gap-2 text-purple-700 dark:text-purple-400"
             >
               <LogoIcon />
               SinhHAI
             </a>
           </NavigationMenuItem>
 
-          {/* Mobile navigation */}
+          {/* Mobile nav */}
           <span className="flex md:hidden items-center gap-2">
             <ModeToggle />
-
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger className="px-2">
-                <Menu className="flex md:hidden h-5 w-5" onClick={() => setIsOpen(true)}>
-                  <span className="sr-only">Menu Icon</span>
+                <Menu className="flex md:hidden h-5 w-5 text-purple-700 dark:text-purple-300" onClick={() => setIsOpen(true)}>
+                  <span className="sr-only">Menu</span>
                 </Menu>
               </SheetTrigger>
-
               <SheetContent side={"left"}>
                 <SheetHeader>
-                  <SheetTitle className="font-bold text-xl">SinhHAI</SheetTitle>
+                  <SheetTitle className="font-bold text-xl text-purple-600">SinhHAI</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col justify-center items-center gap-2 mt-4">
                   {routeList.map(({ href, label }: RouteProps) => (
                     <a
-                      rel="noreferrer noopener"
                       key={label}
                       href={href}
                       onClick={() => setIsOpen(false)}
@@ -180,7 +169,6 @@ export const Navbar = () => {
                       {label}
                     </a>
                   ))}
-
                   {user ? (
                     <Button
                       onClick={() => {
@@ -199,7 +187,7 @@ export const Navbar = () => {
                         setIsOpen(false);
                         setIsAuthOpen(true);
                       }}
-                      className="w-[140px] mt-2 flex gap-2"
+                      className="w-[140px] mt-2 flex gap-2 bg-purple-600 hover:bg-purple-700 text-white"
                     >
                       <LogIn className="w-4 h-4" />
                       Đăng nhập
@@ -210,14 +198,13 @@ export const Navbar = () => {
             </Sheet>
           </span>
 
-          {/* Desktop navigation */}
+          {/* Desktop nav */}
           <nav className="hidden md:flex gap-2">
             {routeList.map((route: RouteProps, i) => (
               <a
-                rel="noreferrer noopener"
                 href={route.href}
                 key={i}
-                className={`text-[17px] ${buttonVariants({
+                className={`text-[17px] hover:text-purple-600 transition-colors ${buttonVariants({
                   variant: "ghost",
                 })}`}
               >
@@ -229,7 +216,7 @@ export const Navbar = () => {
           <div className="hidden md:flex gap-2 items-center">
             {user ? (
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium flex items-center gap-1 text-muted-foreground">
+                <span className="text-sm font-medium flex items-center gap-1 text-purple-600 dark:text-purple-300">
                   <User className="w-4 h-4" />
                   {user.displayName || user.email}
                 </span>
@@ -237,14 +224,18 @@ export const Navbar = () => {
                   onClick={handleLogout}
                   variant="outline"
                   size="sm"
-                  className="flex gap-1"
+                  className="flex gap-1 border-purple-300 hover:bg-purple-50 text-purple-700 dark:border-purple-800 dark:text-purple-300"
                 >
                   <LogOut className="w-4 h-4" />
                   Đăng xuất
                 </Button>
               </div>
             ) : (
-              <Button size="sm" className="flex gap-1" onClick={() => setIsAuthOpen(true)}>
+              <Button
+                size="sm"
+                className="flex gap-1 bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-md shadow-purple-500/20"
+                onClick={() => setIsAuthOpen(true)}
+              >
                 <LogIn className="w-4 h-4" />
                 Đăng nhập
               </Button>
@@ -255,23 +246,23 @@ export const Navbar = () => {
         </NavigationMenuList>
       </NavigationMenu>
 
-      {/* POPUP AUTH MODAL THUẦN TAILWIND (KHÔNG LO LỖI DIALOG) */}
+      {/* Auth Modal */}
       {isAuthOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="relative w-full max-w-md rounded-lg bg-background p-6 shadow-lg border border-border">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md rounded-xl bg-background p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800">
             <button
               onClick={closeAuthModal}
-              className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+              className="absolute right-4 top-4 text-muted-foreground hover:text-purple-600 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <h2 className="text-2xl font-bold text-center mb-4">
+            <h2 className="text-2xl font-bold text-center mb-4 text-purple-600 dark:text-purple-400">
               {isRegister ? "Tạo tài khoản SinhHAI" : "Đăng nhập SinhHAI"}
             </h2>
 
             {authError && (
-              <div className="flex items-center gap-2 p-3 mb-3 bg-red-50 text-red-600 rounded-md text-sm dark:bg-red-950/50 dark:text-red-400">
+              <div className="flex items-center gap-2 p-3 mb-3 bg-red-50 text-red-600 rounded-md text-sm border border-red-200 dark:bg-red-950/50 dark:text-red-400">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{authError}</span>
               </div>
@@ -279,37 +270,41 @@ export const Navbar = () => {
 
             <form onSubmit={handleEmailAuth} className="space-y-3">
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-purple-500" />
                 <input
                   type="email"
                   placeholder="Địa chỉ Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-purple-200 dark:border-purple-900 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-purple-500" />
                 <input
                   type="password"
                   placeholder="Mật khẩu"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-purple-200 dark:border-purple-900 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Đang xử lý..." : isRegister ? "Đăng ký" : "Đăng nhập với Email"}
+              <Button
+                type="submit"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium"
+                disabled={loading}
+              >
+                {loading ? "Đang xử lý..." : isRegister ? "Tạo tài khoản" : "Đăng nhập với Email"}
               </Button>
             </form>
 
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-muted" />
+                <span className="w-full border-t border-purple-200 dark:border-purple-900" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">Hoặc tiếp tục với</span>
@@ -317,7 +312,7 @@ export const Navbar = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={handleGoogleLogin} className="flex gap-2">
+              <Button variant="outline" onClick={handleGoogleLogin} className="flex gap-2 border-purple-200 hover:bg-purple-50 dark:border-purple-900">
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -327,7 +322,7 @@ export const Navbar = () => {
                 Google
               </Button>
 
-              <Button variant="outline" onClick={handleFacebookLogin} className="flex gap-2">
+              <Button variant="outline" onClick={handleFacebookLogin} className="flex gap-2 border-purple-200 hover:bg-purple-50 dark:border-purple-900">
                 <svg className="w-4 h-4 fill-[#1877F2]" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
@@ -345,7 +340,7 @@ export const Navbar = () => {
                       setIsRegister(false);
                       setAuthError("");
                     }}
-                    className="text-primary underline font-medium"
+                    className="text-purple-600 hover:underline font-medium dark:text-purple-400"
                   >
                     Đăng nhập ngay
                   </button>
@@ -359,7 +354,7 @@ export const Navbar = () => {
                       setIsRegister(true);
                       setAuthError("");
                     }}
-                    className="text-primary underline font-medium"
+                    className="text-purple-600 hover:underline font-medium dark:text-purple-400"
                   >
                     Đăng ký ngay
                   </button>
