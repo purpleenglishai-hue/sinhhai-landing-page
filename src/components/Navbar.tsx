@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -12,11 +12,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { buttonVariants } from "./ui/button";
-import { Menu } from "lucide-react";
+import { buttonVariants, Button } from "./ui/button";
+import { Menu, LogIn, LogOut, User } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
 import { LogoIcon } from "./Icons";
+
+// Import Firebase Auth
+import { auth, googleProvider } from "@/firebase";
+import { signInWithPopup, signOut, onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 interface RouteProps {
   href: string;
@@ -26,24 +29,49 @@ interface RouteProps {
 const routeList: RouteProps[] = [
   {
     href: "#features",
-    label: "Features",
-  },
-  {
-    href: "#testimonials",
-    label: "Testimonials",
+    label: "Tính năng",
   },
   {
     href: "#pricing",
-    label: "Pricing",
+    label: "Bảng giá",
   },
   {
     href: "#faq",
-    label: "FAQ",
+    label: "Hỏi đáp",
   },
 ];
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+
+  // Lắng nghe trạng thái đăng nhập Firebase
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Hàm xử lý Đăng nhập Google
+  const handleLogin = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      console.error("Lỗi đăng nhập:", error);
+      alert("Đăng nhập thất bại. Vui lòng kiểm tra lại cấu hình Firebase!");
+    }
+  };
+
+  // Hàm xử lý Đăng xuất
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Lỗi đăng xuất:", error);
+    }
+  };
+
   return (
     <header className="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background">
       <NavigationMenu className="mx-auto">
@@ -52,15 +80,15 @@ export const Navbar = () => {
             <a
               rel="noreferrer noopener"
               href="/"
-              className="ml-2 font-bold text-xl flex"
+              className="ml-2 font-bold text-xl flex items-center gap-2"
             >
               <LogoIcon />
-              ShadcnUI/React
+              SinhHAI
             </a>
           </NavigationMenuItem>
 
-          {/* mobile */}
-          <span className="flex md:hidden">
+          {/* Mobile navigation */}
+          <span className="flex md:hidden items-center gap-2">
             <ModeToggle />
 
             <Sheet
@@ -79,7 +107,7 @@ export const Navbar = () => {
               <SheetContent side={"left"}>
                 <SheetHeader>
                   <SheetTitle className="font-bold text-xl">
-                    Shadcn/React
+                    SinhHAI
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col justify-center items-center gap-2 mt-4">
@@ -94,23 +122,37 @@ export const Navbar = () => {
                       {label}
                     </a>
                   ))}
-                  <a
-                    rel="noreferrer noopener"
-                    href="https://github.com/leoMirandaa/shadcn-landing-page.git"
-                    target="_blank"
-                    className={`w-[110px] border ${buttonVariants({
-                      variant: "secondary",
-                    })}`}
-                  >
-                    <GitHubLogoIcon className="mr-2 w-5 h-5" />
-                    Github
-                  </a>
+
+                  {user ? (
+                    <Button
+                      onClick={() => {
+                        handleLogout();
+                        setIsOpen(false);
+                      }}
+                      variant="destructive"
+                      className="w-[140px] mt-2 flex gap-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Đăng xuất
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        handleLogin();
+                        setIsOpen(false);
+                      }}
+                      className="w-[140px] mt-2 flex gap-2"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      Đăng nhập
+                    </Button>
+                  )}
                 </nav>
               </SheetContent>
             </Sheet>
           </span>
 
-          {/* desktop */}
+          {/* Desktop navigation */}
           <nav className="hidden md:flex gap-2">
             {routeList.map((route: RouteProps, i) => (
               <a
@@ -126,16 +168,33 @@ export const Navbar = () => {
             ))}
           </nav>
 
-          <div className="hidden md:flex gap-2">
-            <a
-              rel="noreferrer noopener"
-              href="https://github.com/leoMirandaa/shadcn-landing-page.git"
-              target="_blank"
-              className={`border ${buttonVariants({ variant: "secondary" })}`}
-            >
-              <GitHubLogoIcon className="mr-2 w-5 h-5" />
-              Github
-            </a>
+          <div className="hidden md:flex gap-2 items-center">
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium flex items-center gap-1 text-muted-foreground">
+                  <User className="w-4 h-4" />
+                  {user.displayName || user.email}
+                </span>
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  size="sm"
+                  className="flex gap-1"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Đăng xuất
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={handleLogin}
+                size="sm"
+                className="flex gap-1"
+              >
+                <LogIn className="w-4 h-4" />
+                Đăng nhập
+              </Button>
+            )}
 
             <ModeToggle />
           </div>
