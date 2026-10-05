@@ -1,6 +1,4 @@
-import { useState } from "react";
-import { Check, X, Copy, CheckCircle2, QrCode } from "lucide-react";
-import { auth } from "../firebase";
+import { Check, ArrowRight } from "lucide-react";
 
 interface PricingPlan {
   id: string;
@@ -17,13 +15,6 @@ interface ProductService {
   subtitle: string;
   plans: PricingPlan[];
 }
-
-// Cấu hình Thông tin Ngân Hàng Cá Nhân
-const BANK_CONFIG = {
-  bankId: "MB", // Ngân hàng MBBank (hoặc VCB, TCB, ACB...)
-  accountNo: "090123456789", // <-- SỬA THÀNH SỐ TÀI KHOẢN CỦA BẠN
-  accountName: "TRAN THIEU LONG", // <-- SỬA THÀNH TÊN CỦA BẠN KHÔNG DẤU
-};
 
 const pricingData: ProductService[] = [
   {
@@ -161,41 +152,6 @@ const pricingData: ProductService[] = [
 ];
 
 export const Pricing = () => {
-  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
-
-  const currentUser = auth.currentUser;
-
-  // Chuyển hướng người dùng sang trang thanh toán /checkout kèm thông tin gói cước
-  const handleSelectPlan = (serviceCategory: string, plan: PricingPlan) => {
-    const fullPlanName = `${serviceCategory} - ${plan.title}`;
-    const checkoutUrl = `/checkout?plan=${encodeURIComponent(fullPlanName)}&price=${plan.numericPrice}`;
-    window.location.href = checkoutUrl;
-  };
-
-  const handleClosePayment = () => {
-    setSelectedPlan(null);
-    setIsSuccess(false);
-  };
-
-  const copyTransferContent = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const getQrUrl = (plan: PricingPlan) => {
-    const userIdentifier = currentUser?.email ? currentUser.email.split("@")[0] : "KHACH";
-    const memo = `SINHHAI ${plan.id} ${userIdentifier}`.toUpperCase();
-    return `https://img.vietqr.io/image/${BANK_CONFIG.bankId}-${BANK_CONFIG.accountNo}-compact2.png?amount=${plan.numericPrice}&addInfo=${encodeURIComponent(memo)}&accountName=${encodeURIComponent(BANK_CONFIG.accountName)}`;
-  };
-
-  const getTransferMemo = (plan: PricingPlan) => {
-    const userIdentifier = currentUser?.email ? currentUser.email.split("@")[0] : "KHACH";
-    return `SINHHAI ${plan.id} ${userIdentifier}`.toUpperCase();
-  };
-
   return (
     <section id="pricing" className="container py-16 sm:py-24 space-y-16">
       <div className="text-center space-y-4">
@@ -248,113 +204,19 @@ export const Pricing = () => {
                 </div>
 
                 <div className="pt-6 mt-auto">
-                  <button
-                    onClick={() => handleSelectPlan(service.category, plan)}
-                    className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md shadow-purple-500/20 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  <a
+                    href={`/checkout?plan=${encodeURIComponent(`${service.category} -${plan.title}`)}&price=${plan.numericPrice}`}
+                    className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md shadow-purple-500/20 transition-colors flex items-center justify-center gap-2 text-center"
                   >
-                    <QrCode className="w-4 h-4" />
-                    Đăng Ký Ngay
-                  </button>
+                    <span>Đăng Ký Ngay</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
                 </div>
               </div>
             ))}
           </div>
         </div>
       ))}
-
-      {/* MODAL THANH TOÁN QR BANK CÁ NHÂN (DỰ PHÒNG KHI CẦN HIỂN THỊ TẠI CHỖ) */}
-      {selectedPlan && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
-          onClick={handleClosePayment}
-        >
-          <div 
-            className="relative w-full max-w-lg my-auto rounded-xl bg-background p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={handleClosePayment}
-              className="absolute right-4 top-4 p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 hover:bg-purple-200 transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            {!isSuccess ? (
-              <div className="space-y-4 text-center">
-                <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  Thanh Toán Dịch Vụ SinhHAI
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Gói chọn: <span className="font-bold text-foreground">{selectedPlan.title}</span> ({selectedPlan.price})
-                </p>
-
-                <div className="flex justify-center my-3">
-                  <div className="p-3 bg-white rounded-xl shadow-md border border-purple-200">
-                    <img
-                      src={getQrUrl(selectedPlan)}
-                      alt="VietQR Payment"
-                      className="w-56 h-56 object-contain mx-auto"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-left bg-purple-50 dark:bg-purple-950/40 p-4 rounded-lg text-sm border border-purple-200 dark:border-purple-900">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Ngân hàng:</span>
-                    <span className="font-bold">{BANK_CONFIG.bankId}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Số tài khoản:</span>
-                    <span className="font-bold text-purple-600 dark:text-purple-400">{BANK_CONFIG.accountNo}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Chủ tài khoản:</span>
-                    <span className="font-bold">{BANK_CONFIG.accountName}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-purple-200 dark:border-purple-800">
-                    <span className="text-muted-foreground">Nội dung CK:</span>
-                    <div className="flex items-center gap-1">
-                      <span className="font-mono font-bold text-purple-700 dark:text-purple-300">
-                        {getTransferMemo(selectedPlan)}
-                      </span>
-                      <button
-                        onClick={() => copyTransferContent(getTransferMemo(selectedPlan))}
-                        className="p-1 hover:bg-purple-200 dark:hover:bg-purple-800 rounded transition-colors"
-                        title="Sao chép"
-                      >
-                        {copied ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-purple-600" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setIsSuccess(true)}
-                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow-md transition-colors"
-                >
-                  Xác Nhận Đã Chuyển Khoản
-                </button>
-              </div>
-            ) : (
-              <div className="text-center py-6 space-y-4">
-                <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto animate-bounce" />
-                <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  Gửi Yêu Cầu Thành Công!
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed px-4">
-                  Hệ thống đang xác nhận giao dịch. Tài khoản sẽ được kích hoạt / cộng Token trong vòng <span className="font-bold text-foreground">3 - 5 phút</span>.
-                </p>
-                <button
-                  onClick={handleClosePayment}
-                  className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md transition-colors"
-                >
-                  Hoàn Tất & Đóng
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </section>
   );
 };
