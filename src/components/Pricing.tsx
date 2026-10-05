@@ -18,11 +18,11 @@ interface ProductService {
   plans: PricingPlan[];
 }
 
-// Cấu hình Thông tin Ngân Hàng Cá Nhân của Anh Long
+// Cấu hình Thông tin Ngân Hàng Cá Nhân
 const BANK_CONFIG = {
   bankId: "MB", // Ngân hàng MBBank (hoặc VCB, TCB, ACB...)
-  accountNo: "090123456789", // <-- SỬA THÀNH SỐ TÀI KHOẢN CỦA ANH
-  accountName: "TRAN THIEU LONG", // <-- SỬA THÀNH TÊN CỦA ANH KHÔNG DẤU
+  accountNo: "090123456789", // <-- SỬA THÀNH SỐ TÀI KHOẢN CỦA BẠN
+  accountName: "TRAN THIEU LONG", // <-- SỬA THÀNH TÊN CỦA BẠN KHÔNG DẤU
 };
 
 const pricingData: ProductService[] = [
@@ -167,9 +167,11 @@ export const Pricing = () => {
 
   const currentUser = auth.currentUser;
 
-  const handleOpenPayment = (plan: PricingPlan) => {
-    setSelectedPlan(plan);
-    setIsSuccess(false);
+  // Chuyển hướng người dùng sang trang thanh toán /checkout kèm thông tin gói cước
+  const handleSelectPlan = (serviceCategory: string, plan: PricingPlan) => {
+    const fullPlanName = `${serviceCategory} - ${plan.title}`;
+    const checkoutUrl = `/checkout?plan=${encodeURIComponent(fullPlanName)}&price=${plan.numericPrice}`;
+    window.location.href = checkoutUrl;
   };
 
   const handleClosePayment = () => {
@@ -247,8 +249,8 @@ export const Pricing = () => {
 
                 <div className="pt-6 mt-auto">
                   <button
-                    onClick={() => handleOpenPayment(plan)}
-                    className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md shadow-purple-500/20 transition-colors flex items-center justify-center gap-2"
+                    onClick={() => handleSelectPlan(service.category, plan)}
+                    className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md shadow-purple-500/20 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <QrCode className="w-4 h-4" />
                     Đăng Ký Ngay
@@ -260,7 +262,7 @@ export const Pricing = () => {
         </div>
       ))}
 
-      {/* MODAL THANH TOÁN QR BANK CÁ NHÂN */}
+      {/* MODAL THANH TOÁN QR BANK CÁ NHÂN (DỰ PHÒNG KHI CẦN HIỂN THỊ TẠI CHỖ) */}
       {selectedPlan && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
