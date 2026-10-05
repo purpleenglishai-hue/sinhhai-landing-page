@@ -14,14 +14,34 @@ import { Services } from "./components/Services";
 import { Sponsors } from "./components/Sponsors";
 import { Team } from "./components/Team";
 import { Testimonials } from "./components/Testimonials";
-import { PaymentPage } from "./PaymentPage";
+
+// Nếu bạn đã có file PaymentPage.tsx ở src/PaymentPage.tsx, bỏ comment dòng dưới và xóa component PaymentPageFallback phía dưới:
+// import { PaymentPage } from "./PaymentPage";
+
 import "./App.css";
+
+// Component Trang Thanh Toán hiển thị khi truy cập /checkout
+function PaymentPageFallback() {
+  return (
+    <div className="container py-12 min-h-[70vh] flex flex-col items-center justify-center text-center">
+      <h1 className="text-3xl font-bold text-purple-600 mb-4">Trang Thanh Toán SinhHAI</h1>
+      <p className="text-muted-foreground mb-6 max-w-md">
+        Chào mừng bạn đến với trang thanh toán. Vui lòng chọn gói cước dịch vụ để tiếp tục.
+      </p>
+      <a
+        href="/"
+        className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+      >
+        Quay lại trang chủ
+      </a>
+    </div>
+  );
+}
 
 function App() {
   const [currentPath, setCurrentPath] = useState<string>(window.location.pathname);
 
   useEffect(() => {
-    // Lắng nghe sự thay đổi đường dẫn (chuyển trang)
     const handleLocationChange = () => {
       setCurrentPath(window.location.pathname);
     };
@@ -30,15 +50,14 @@ function App() {
     return () => window.removeEventListener("popstate", handleLocationChange);
   }, []);
 
-  // Kiểm tra nếu đường dẫn là /checkout thì hiển thị PaymentPage
   const isCheckout = currentPath === "/checkout";
 
   return (
     <>
       <Navbar />
-      
+
       {isCheckout ? (
-        <PaymentPage />
+        <PaymentPageFallback />
       ) : (
         <>
           <Hero />
