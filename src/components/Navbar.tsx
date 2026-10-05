@@ -95,6 +95,13 @@ export const Navbar = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isAuthOpen]);
 
+  // Điều hướng đến Trang Thanh Toán (/checkout)
+  const handleNavigateToCheckout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsOpen(false);
+    window.location.href = "/checkout";
+  };
+
   // Đăng nhập Google
   const handleGoogleLogin = async () => {
     setAuthError("");
@@ -200,8 +207,8 @@ export const Navbar = () => {
                     {/* Nút thanh toán Mobile */}
                     <a
                       href="/checkout"
-                      onClick={() => setIsOpen(false)}
-                      className="w-[170px] mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-4 rounded-md font-medium text-sm shadow"
+                      onClick={handleNavigateToCheckout}
+                      className="w-[170px] mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-4 rounded-md font-medium text-sm shadow cursor-pointer transition-all"
                     >
                       <CreditCard className="w-4 h-4" />
                       Thanh toán
@@ -255,7 +262,8 @@ export const Navbar = () => {
               {/* Nút thanh toán Desktop */}
               <a
                 href="/checkout"
-                className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-sm font-medium px-3.5 py-1.5 rounded-md shadow-md transition-all duration-200"
+                onClick={handleNavigateToCheckout}
+                className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-sm font-medium px-3.5 py-1.5 rounded-md shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
               >
                 <CreditCard className="w-4 h-4" />
                 Thanh toán
@@ -294,7 +302,7 @@ export const Navbar = () => {
         </NavigationMenu>
       </header>
 
-      {/* POPUP AUTH MODAL: Sử dụng React Portal để đưa Modal lên vị trí cao nhất ngoài document body */}
+      {/* POPUP AUTH MODAL */}
       {mounted && isAuthOpen && createPortal(
         <div 
           className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
