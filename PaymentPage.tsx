@@ -8,14 +8,14 @@ interface PaymentPageProps {
 export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
   const [copied, setCopied] = useState(false);
 
-  // --- CẤU HÌNH THÔNG TIN CHUYỂN KHOẢN CỦA BẠN ---
-  const BANK_ID = "MB"; // Ngân hàng (MB, VCB, TCB, ACB, VPB...)
-  const ACCOUNT_NO = "STK_CỦA_BẠN"; // Thay số tài khoản ngân hàng của bạn vào đây
-  const ACCOUNT_NAME = "TRAN THIEU LONG"; // Tên chủ tài khoản (viết hoa không dấu)
-  const AMOUNT = 199000; // Số tiền sản phẩm/gói dịch vụ (VND)
-  const ORDER_CODE = "SH" + Math.floor(100000 + Math.random() * 900000); // Mã đơn hàng ngẫu nhiên
+  // --- THÔNG TIN TÀI KHOẢN MB BANK CỦA BẠN ---
+  const BANK_ID = "MB"; 
+  const ACCOUNT_NO = "0909561710"; 
+  const ACCOUNT_NAME = "PHAN MONG THUY"; 
+  const AMOUNT = 199000; // Số tiền (VND)
+  const ORDER_CODE = "SH" + Math.floor(100000 + Math.random() * 900000); // Mã đơn hàng tự động
 
-  // URL VietQR tạo mã QR chuẩn Napas247 tự động điền tiền và nội dung
+  // Tự động tạo URL ảnh VietQR chuẩn Napas247
   const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${AMOUNT}&addInfo=${ORDER_CODE}&accountName=${encodeURIComponent(
     ACCOUNT_NAME
   )}`;
@@ -40,7 +40,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          {/* Cột Trái: Thông tin Đơn hàng & Cam kết */}
+          {/* Cột Trái: Tóm tắt đơn hàng */}
           <div className="md:col-span-5 space-y-6">
             <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
               <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -67,7 +67,7 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
               </div>
             </div>
 
-            {/* Khối Cam kết Uy tín */}
+            {/* Cam kết uy tín */}
             <div className="bg-indigo-50/50 dark:bg-indigo-950/30 p-5 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 space-y-3">
               <div className="flex items-center gap-3 text-sm font-medium text-indigo-900 dark:text-indigo-300">
                 <ShieldCheck className="w-5 h-5 text-indigo-600 shrink-0" />
@@ -90,16 +90,16 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
               <h3 className="text-lg font-bold mb-2">Mở App Ngân hàng bất kỳ để Quét QR</h3>
               <p className="text-sm text-slate-500 mb-6">Mã QR đã bao gồm số tiền và nội dung chuyển khoản chính xác</p>
 
-              {/* Ảnh QR VietQR */}
+              {/* Mã QR Tự Động Tạo */}
               <div className="inline-block p-3 bg-white rounded-xl border border-slate-200 shadow-inner mb-6">
-                <img src={qrUrl} alt="Mã QR Thanh Toán" className="w-64 h-64 object-contain mx-auto" />
+                <img src={qrUrl} alt="Mã QR Thanh Toán MB Bank" className="w-64 h-64 object-contain mx-auto" />
               </div>
 
-              {/* Chi tiết Tài khoản Chuyển thủ công */}
+              {/* Thông tin chuyển khoản thủ công */}
               <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl text-left space-y-3 text-sm">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500">Ngân hàng:</span>
-                  <span className="font-semibold">{BANK_ID} (Military Bank)</span>
+                  <span className="font-semibold">MB Bank (Ngân hàng Quân Đội)</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500">Chủ tài khoản:</span>
