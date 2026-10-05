@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { About } from "./components/About";
 import { Cta } from "./components/Cta";
 import { FAQ } from "./components/FAQ";
@@ -13,24 +14,46 @@ import { Services } from "./components/Services";
 import { Sponsors } from "./components/Sponsors";
 import { Team } from "./components/Team";
 import { Testimonials } from "./components/Testimonials";
+import { PaymentPage } from "./components/PaymentPage"; // Import trang PaymentPage
 import "./App.css";
 
 function App() {
+  const [currentPath, setCurrentPath] = useState<string>(window.location.pathname);
+
+  useEffect(() => {
+    // Lắng nghe sự thay đổi của URL
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+
+    window.addEventListener("popstate", handleLocationChange);
+    return () => window.removeEventListener("popstate", handleLocationChange);
+  }, []);
+
   return (
     <>
       <Navbar />
-      <Hero />
-      <Sponsors />
-      <About />
-      <HowItWorks />
-      <Features />
-      <Services />
-      <Cta />
-      <Testimonials />
-      <Team />
-      <Pricing />
-      <Newsletter />
-      <FAQ />
+
+      {/* Tách giao diện dựa trên đường dẫn URL */}
+      {currentPath === "/checkout" ? (
+        <PaymentPage />
+      ) : (
+        <>
+          <Hero />
+          <Sponsors />
+          <About />
+          <HowItWorks />
+          <Features />
+          <Services />
+          <Cta />
+          <Testimonials />
+          <Team />
+          <Pricing />
+          <Newsletter />
+          <FAQ />
+        </>
+      )}
+
       <Footer />
       <ScrollToTop />
     </>
