@@ -60,6 +60,7 @@ export const Navbar = () => {
   const [authError, setAuthError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Lắng nghe trạng thái đăng nhập Firebase
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -67,6 +68,7 @@ export const Navbar = () => {
     return () => unsubscribe();
   }, []);
 
+  // Đóng Modal Đăng nhập / Đăng ký
   const closeAuthModal = () => {
     setIsAuthOpen(false);
     setAuthError("");
@@ -75,6 +77,18 @@ export const Navbar = () => {
     setLoading(false);
   };
 
+  // Bắt sự kiện phím ESC để đóng Modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isAuthOpen) {
+        closeAuthModal();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isAuthOpen]);
+
+  // Đăng nhập Google
   const handleGoogleLogin = async () => {
     setAuthError("");
     try {
@@ -86,6 +100,7 @@ export const Navbar = () => {
     }
   };
 
+  // Đăng nhập Facebook
   const handleFacebookLogin = async () => {
     setAuthError("");
     try {
@@ -93,10 +108,11 @@ export const Navbar = () => {
       closeAuthModal();
     } catch (error: any) {
       console.error("Lỗi Facebook Login:", error);
-      setAuthError("Đăng nhập Facebook thất bại!");
+      setAuthError("Đăng nhập Facebook thất bại! Kiểm tra cài đặt domain trên Meta.");
     }
   };
 
+  // Đăng nhập / Đăng ký bằng Email & Mật khẩu
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
@@ -113,7 +129,9 @@ export const Navbar = () => {
       if (error.code === "auth/email-already-in-use") {
         setAuthError("Email này đã được đăng ký!");
       } else if (error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
-        setAuthError("Email hoặc mật khẩu không đúng!");
+        setAuthError("Email hoặc mật khẩu không chính xác!");
+      } else if (error.code === "auth/weak-password") {
+        setAuthError("Mật khẩu phải từ 6 ký tự trở lên!");
       } else {
         setAuthError("Đã có lỗi xảy ra. Vui lòng thử lại!");
       }
@@ -122,6 +140,7 @@ export const Navbar = () => {
     }
   };
 
+  // Đăng xuất
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -246,10 +265,10 @@ export const Navbar = () => {
         </NavigationMenuList>
       </NavigationMenu>
 
-      {/* Auth Modal */}
+      {/* POPUP AUTH MODAL ĐÃ FIX VỊ TRÍ, NỘI DUNG CUỘN & PHÍM ESC */}
       {isAuthOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md rounded-xl bg-background p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="relative w-full max-w-md my-auto rounded-xl bg-background p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 max-h-[90vh] overflow-y-auto">
             <button
               onClick={closeAuthModal}
               className="absolute right-4 top-4 text-muted-foreground hover:text-purple-600 transition-colors"
@@ -257,9 +276,12 @@ export const Navbar = () => {
               <X className="h-5 w-5" />
             </button>
 
-            <h2 className="text-2xl font-bold text-center mb-4 text-purple-600 dark:text-purple-400">
+            <h2 className="text-2xl font-bold text-center mb-1 text-purple-600 dark:text-purple-400">
               {isRegister ? "Tạo tài khoản SinhHAI" : "Đăng nhập SinhHAI"}
             </h2>
+            <p className="text-xs text-center text-muted-foreground mb-4">
+              Nhấn ESC hoặc nút (X) để thoát
+            </p>
 
             {authError && (
               <div className="flex items-center gap-2 p-3 mb-3 bg-red-50 text-red-600 rounded-md text-sm border border-red-200 dark:bg-red-950/50 dark:text-red-400">
