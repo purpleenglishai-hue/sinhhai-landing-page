@@ -15,7 +15,6 @@ import { Sponsors } from "./components/Sponsors";
 import { Team } from "./components/Team";
 import { Testimonials } from "./components/Testimonials";
 
-// Import PaymentPage từ thư mục gốc ra ngoài 1 cấp (../PaymentPage)
 import { PaymentPage } from "../PaymentPage";
 
 import "./App.css";
