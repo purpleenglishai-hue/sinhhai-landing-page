@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { buttonVariants, Button } from "./ui/button";
-import { Menu, LogIn, LogOut, User, Mail, Lock, AlertCircle, X } from "lucide-react";
+import { Menu, LogIn, LogOut, User, Mail, Lock, AlertCircle, X, CreditCard } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
 import { LogoIcon } from "./Icons";
 
@@ -36,15 +36,15 @@ interface RouteProps {
 const routeList: RouteProps[] = [
   {
     href: "#features",
-    label: "Tính năng",
+    label: "Tính năng SinhHAI",
   },
   {
     href: "#pricing",
-    label: "Bảng giá",
+    label: "Bảng giá gói cước",
   },
   {
     href: "#faq",
-    label: "Hỏi đáp",
+    label: "Hỏi & Đáp",
   },
 ];
 
@@ -170,12 +170,12 @@ export const Navbar = () => {
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger className="px-2">
                 <Menu className="flex md:hidden h-5 w-5 text-purple-700 dark:text-purple-300" onClick={() => setIsOpen(true)}>
-                  <span className="sr-only">Menu</span>
+                  <span className="sr-only">Thực đơn</span>
                 </Menu>
               </SheetTrigger>
               <SheetContent side={"left"}>
                 <SheetHeader>
-                  <SheetTitle className="font-bold text-xl text-purple-600">SinhHAI</SheetTitle>
+                  <SheetTitle className="font-bold text-xl text-purple-600">Nền tảng SinhHAI</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col justify-center items-center gap-2 mt-4">
                   {routeList.map(({ href, label }: RouteProps) => (
@@ -188,6 +188,17 @@ export const Navbar = () => {
                       {label}
                     </a>
                   ))}
+
+                  {/* Nút thanh toán Mobile */}
+                  <a
+                    href="/checkout"
+                    onClick={() => setIsOpen(false)}
+                    className="w-[170px] mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-4 rounded-md font-medium text-sm shadow"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    Thanh toán
+                  </a>
+
                   {user ? (
                     <Button
                       onClick={() => {
@@ -195,7 +206,7 @@ export const Navbar = () => {
                         setIsOpen(false);
                       }}
                       variant="destructive"
-                      className="w-[140px] mt-2 flex gap-2"
+                      className="w-[170px] mt-2 flex gap-2"
                     >
                       <LogOut className="w-4 h-4" />
                       Đăng xuất
@@ -206,7 +217,7 @@ export const Navbar = () => {
                         setIsOpen(false);
                         setIsAuthOpen(true);
                       }}
-                      className="w-[140px] mt-2 flex gap-2 bg-purple-600 hover:bg-purple-700 text-white"
+                      className="w-[170px] mt-2 flex gap-2 bg-purple-600 hover:bg-purple-700 text-white"
                     >
                       <LogIn className="w-4 h-4" />
                       Đăng nhập
@@ -233,6 +244,15 @@ export const Navbar = () => {
           </nav>
 
           <div className="hidden md:flex gap-2 items-center">
+            {/* Nút thanh toán Desktop */}
+            <a
+              href="/checkout"
+              className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-sm font-medium px-3.5 py-1.5 rounded-md shadow-md transition-all duration-200"
+            >
+              <CreditCard className="w-4 h-4" />
+              Thanh toán
+            </a>
+
             {user ? (
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium flex items-center gap-1 text-purple-600 dark:text-purple-300">
@@ -265,20 +285,20 @@ export const Navbar = () => {
         </NavigationMenuList>
       </NavigationMenu>
 
-      {/* POPUP AUTH MODAL ĐÃ FIX HIỂN THỊ CĂN GIỮA MÀN HÌNH & NÚT ĐÓNG */}
+      {/* POPUP AUTH MODAL: Đã sửa lỗi hiển thị tràn top & che phần đầu */}
       {isAuthOpen && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
           onClick={closeAuthModal}
         >
           <div 
-            className="relative w-full max-w-md bg-background rounded-xl p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 max-h-[85vh] overflow-y-auto"
+            className="relative w-full max-w-md bg-background rounded-xl p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Nút X Đóng Popup */}
             <button
               onClick={closeAuthModal}
-              className="absolute right-4 top-4 z-20 p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
+              className="absolute right-3 top-3 z-20 p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
               title="Đóng (ESC)"
             >
               <X className="h-5 w-5" />
@@ -288,7 +308,7 @@ export const Navbar = () => {
               {isRegister ? "Tạo tài khoản SinhHAI" : "Đăng nhập SinhHAI"}
             </h2>
             <p className="text-xs text-center text-muted-foreground mb-4">
-              Nhấn phím <kbd className="px-1.5 py-0.5 bg-muted rounded border text-[10px] font-mono">ESC</kbd> hoặc nút (X) để thoát
+              Nhấn phím <kbd className="px-1.5 py-0.5 bg-muted rounded border text-[10px] font-mono">ESC</kbd> hoặc nút (X) để đóng
             </p>
 
             {authError && (
