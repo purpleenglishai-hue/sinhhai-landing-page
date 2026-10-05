@@ -68,7 +68,7 @@ export const Navbar = () => {
     return () => unsubscribe();
   }, []);
 
-  // Đóng Modal Đăng nhập / Đăng ký
+  // Đóng Modal Auth
   const closeAuthModal = () => {
     setIsAuthOpen(false);
     setAuthError("");
@@ -77,7 +77,7 @@ export const Navbar = () => {
     setLoading(false);
   };
 
-  // Bắt sự kiện phím ESC để đóng Modal
+  // Lắng nghe phím ESC để đóng Modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isAuthOpen) {
@@ -108,7 +108,7 @@ export const Navbar = () => {
       closeAuthModal();
     } catch (error: any) {
       console.error("Lỗi Facebook Login:", error);
-      setAuthError("Đăng nhập Facebook thất bại! Kiểm tra cài đặt domain trên Meta.");
+      setAuthError("Đăng nhập Facebook thất bại! Kiểm tra lại cài đặt App Facebook.");
     }
   };
 
@@ -265,13 +265,21 @@ export const Navbar = () => {
         </NavigationMenuList>
       </NavigationMenu>
 
-      {/* POPUP AUTH MODAL ĐÃ FIX VỊ TRÍ, NỘI DUNG CUỘN & PHÍM ESC */}
+      {/* POPUP AUTH MODAL ĐÃ FIX HIỂN THỊ CĂN GIỮA MÀN HÌNH & NÚT ĐÓNG */}
       {isAuthOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="relative w-full max-w-md my-auto rounded-xl bg-background p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 max-h-[90vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={closeAuthModal}
+        >
+          <div 
+            className="relative w-full max-w-md bg-background rounded-xl p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Nút X Đóng Popup */}
             <button
               onClick={closeAuthModal}
-              className="absolute right-4 top-4 text-muted-foreground hover:text-purple-600 transition-colors"
+              className="absolute right-4 top-4 z-20 p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
+              title="Đóng (ESC)"
             >
               <X className="h-5 w-5" />
             </button>
@@ -280,7 +288,7 @@ export const Navbar = () => {
               {isRegister ? "Tạo tài khoản SinhHAI" : "Đăng nhập SinhHAI"}
             </h2>
             <p className="text-xs text-center text-muted-foreground mb-4">
-              Nhấn ESC hoặc nút (X) để thoát
+              Nhấn phím <kbd className="px-1.5 py-0.5 bg-muted rounded border text-[10px] font-mono">ESC</kbd> hoặc nút (X) để thoát
             </p>
 
             {authError && (
