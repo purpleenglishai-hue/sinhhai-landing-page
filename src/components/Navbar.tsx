@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -52,6 +53,7 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [mounted, setMounted] = useState<boolean>(false);
 
   // State Form
   const [isRegister, setIsRegister] = useState<boolean>(false);
@@ -59,6 +61,11 @@ export const Navbar = () => {
   const [password, setPassword] = useState<string>("");
   const [authError, setAuthError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  // Đảm bảo client-side rendering cho Portal
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Lắng nghe trạng thái đăng nhập Firebase
   useEffect(() => {
@@ -150,145 +157,147 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="sticky border-b top-0 z-40 w-full bg-white/95 backdrop-blur dark:border-b-purple-900/40 dark:bg-background/95 border-purple-200">
-      <NavigationMenu className="mx-auto">
-        <NavigationMenuList className="container h-14 px-4 w-screen flex justify-between">
-          <NavigationMenuItem className="font-bold flex">
-            <a
-              rel="noreferrer noopener"
-              href="/"
-              className="ml-2 font-bold text-xl flex items-center gap-2 text-purple-700 dark:text-purple-400"
-            >
-              <LogoIcon />
-              SinhHAI
-            </a>
-          </NavigationMenuItem>
-
-          {/* Mobile nav */}
-          <span className="flex md:hidden items-center gap-2">
-            <ModeToggle />
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger className="px-2">
-                <Menu className="flex md:hidden h-5 w-5 text-purple-700 dark:text-purple-300" onClick={() => setIsOpen(true)}>
-                  <span className="sr-only">Thực đơn</span>
-                </Menu>
-              </SheetTrigger>
-              <SheetContent side={"left"}>
-                <SheetHeader>
-                  <SheetTitle className="font-bold text-xl text-purple-600">Nền tảng SinhHAI</SheetTitle>
-                </SheetHeader>
-                <nav className="flex flex-col justify-center items-center gap-2 mt-4">
-                  {routeList.map(({ href, label }: RouteProps) => (
-                    <a
-                      key={label}
-                      href={href}
-                      onClick={() => setIsOpen(false)}
-                      className={buttonVariants({ variant: "ghost" })}
-                    >
-                      {label}
-                    </a>
-                  ))}
-
-                  {/* Nút thanh toán Mobile */}
-                  <a
-                    href="/checkout"
-                    onClick={() => setIsOpen(false)}
-                    className="w-[170px] mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-4 rounded-md font-medium text-sm shadow"
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    Thanh toán
-                  </a>
-
-                  {user ? (
-                    <Button
-                      onClick={() => {
-                        handleLogout();
-                        setIsOpen(false);
-                      }}
-                      variant="destructive"
-                      className="w-[170px] mt-2 flex gap-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Đăng xuất
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => {
-                        setIsOpen(false);
-                        setIsAuthOpen(true);
-                      }}
-                      className="w-[170px] mt-2 flex gap-2 bg-purple-600 hover:bg-purple-700 text-white"
-                    >
-                      <LogIn className="w-4 h-4" />
-                      Đăng nhập
-                    </Button>
-                  )}
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </span>
-
-          {/* Desktop nav */}
-          <nav className="hidden md:flex gap-2">
-            {routeList.map((route: RouteProps, i) => (
+    <>
+      <header className="sticky border-b top-0 z-40 w-full bg-white/95 backdrop-blur dark:border-b-purple-900/40 dark:bg-background/95 border-purple-200">
+        <NavigationMenu className="mx-auto">
+          <NavigationMenuList className="container h-14 px-4 w-screen flex justify-between">
+            <NavigationMenuItem className="font-bold flex">
               <a
-                href={route.href}
-                key={i}
-                className={`text-[17px] hover:text-purple-600 transition-colors ${buttonVariants({
-                  variant: "ghost",
-                })}`}
+                rel="noreferrer noopener"
+                href="/"
+                className="ml-2 font-bold text-xl flex items-center gap-2 text-purple-700 dark:text-purple-400"
               >
-                {route.label}
+                <LogoIcon />
+                SinhHAI
               </a>
-            ))}
-          </nav>
+            </NavigationMenuItem>
 
-          <div className="hidden md:flex gap-2 items-center">
-            {/* Nút thanh toán Desktop */}
-            <a
-              href="/checkout"
-              className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-sm font-medium px-3.5 py-1.5 rounded-md shadow-md transition-all duration-200"
-            >
-              <CreditCard className="w-4 h-4" />
-              Thanh toán
-            </a>
+            {/* Mobile nav */}
+            <span className="flex md:hidden items-center gap-2">
+              <ModeToggle />
+              <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                <SheetTrigger className="px-2">
+                  <Menu className="flex md:hidden h-5 w-5 text-purple-700 dark:text-purple-300" onClick={() => setIsOpen(true)}>
+                    <span className="sr-only">Thực đơn</span>
+                  </Menu>
+                </SheetTrigger>
+                <SheetContent side={"left"}>
+                  <SheetHeader>
+                    <SheetTitle className="font-bold text-xl text-purple-600">Nền tảng SinhHAI</SheetTitle>
+                  </SheetHeader>
+                  <nav className="flex flex-col justify-center items-center gap-2 mt-4">
+                    {routeList.map(({ href, label }: RouteProps) => (
+                      <a
+                        key={label}
+                        href={href}
+                        onClick={() => setIsOpen(false)}
+                        className={buttonVariants({ variant: "ghost" })}
+                      >
+                        {label}
+                      </a>
+                    ))}
 
-            {user ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium flex items-center gap-1 text-purple-600 dark:text-purple-300">
-                  <User className="w-4 h-4" />
-                  {user.displayName || user.email}
-                </span>
-                <Button
-                  onClick={handleLogout}
-                  variant="outline"
-                  size="sm"
-                  className="flex gap-1 border-purple-300 hover:bg-purple-50 text-purple-700 dark:border-purple-800 dark:text-purple-300"
+                    {/* Nút thanh toán Mobile */}
+                    <a
+                      href="/checkout"
+                      onClick={() => setIsOpen(false)}
+                      className="w-[170px] mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-4 rounded-md font-medium text-sm shadow"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      Thanh toán
+                    </a>
+
+                    {user ? (
+                      <Button
+                        onClick={() => {
+                          handleLogout();
+                          setIsOpen(false);
+                        }}
+                        variant="destructive"
+                        className="w-[170px] mt-2 flex gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Đăng xuất
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => {
+                          setIsOpen(false);
+                          setIsAuthOpen(true);
+                        }}
+                        className="w-[170px] mt-2 flex gap-2 bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        <LogIn className="w-4 h-4" />
+                        Đăng nhập
+                      </Button>
+                    )}
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </span>
+
+            {/* Desktop nav */}
+            <nav className="hidden md:flex gap-2">
+              {routeList.map((route: RouteProps, i) => (
+                <a
+                  href={route.href}
+                  key={i}
+                  className={`text-[17px] hover:text-purple-600 transition-colors ${buttonVariants({
+                    variant: "ghost",
+                  })}`}
                 >
-                  <LogOut className="w-4 h-4" />
-                  Đăng xuất
-                </Button>
-              </div>
-            ) : (
-              <Button
-                size="sm"
-                className="flex gap-1 bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-md shadow-purple-500/20"
-                onClick={() => setIsAuthOpen(true)}
+                  {route.label}
+                </a>
+              ))}
+            </nav>
+
+            <div className="hidden md:flex gap-2 items-center">
+              {/* Nút thanh toán Desktop */}
+              <a
+                href="/checkout"
+                className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-sm font-medium px-3.5 py-1.5 rounded-md shadow-md transition-all duration-200"
               >
-                <LogIn className="w-4 h-4" />
-                Đăng nhập
-              </Button>
-            )}
+                <CreditCard className="w-4 h-4" />
+                Thanh toán
+              </a>
 
-            <ModeToggle />
-          </div>
-        </NavigationMenuList>
-      </NavigationMenu>
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium flex items-center gap-1 text-purple-600 dark:text-purple-300">
+                    <User className="w-4 h-4" />
+                    {user.displayName || user.email}
+                  </span>
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    size="sm"
+                    className="flex gap-1 border-purple-300 hover:bg-purple-50 text-purple-700 dark:border-purple-800 dark:text-purple-300"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Đăng xuất
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  className="flex gap-1 bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-md shadow-purple-500/20"
+                  onClick={() => setIsAuthOpen(true)}
+                >
+                  <LogIn className="w-4 h-4" />
+                  Đăng nhập
+                </Button>
+              )}
 
-      {/* POPUP AUTH MODAL: Sửa z-index thành z-[9999] và căn giữa chuẩn màn hình */}
-      {isAuthOpen && (
+              <ModeToggle />
+            </div>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </header>
+
+      {/* POPUP AUTH MODAL: Sử dụng React Portal để đưa Modal lên vị trí cao nhất ngoài document body */}
+      {mounted && isAuthOpen && createPortal(
         <div 
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
           onClick={closeAuthModal}
         >
           <div 
@@ -412,8 +421,9 @@ export const Navbar = () => {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </header>
+    </>
   );
 };
