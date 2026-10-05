@@ -14,14 +14,14 @@ import { Services } from "./components/Services";
 import { Sponsors } from "./components/Sponsors";
 import { Team } from "./components/Team";
 import { Testimonials } from "./components/Testimonials";
-import { PaymentPage } from "./components/PaymentPage"; // Import trang PaymentPage
+import { PaymentPage } from "./components/PaymentPage";
 import "./App.css";
 
 function App() {
   const [currentPath, setCurrentPath] = useState<string>(window.location.pathname);
 
   useEffect(() => {
-    // Lắng nghe sự thay đổi của URL
+    // Lắng nghe sự thay đổi đường dẫn (chuyển trang)
     const handleLocationChange = () => {
       setCurrentPath(window.location.pathname);
     };
@@ -30,12 +30,14 @@ function App() {
     return () => window.removeEventListener("popstate", handleLocationChange);
   }, []);
 
+  // Kiểm tra nếu đường dẫn là /checkout thì hiển thị PaymentPage
+  const isCheckout = currentPath === "/checkout";
+
   return (
     <>
       <Navbar />
-
-      {/* Tách giao diện dựa trên đường dẫn URL */}
-      {currentPath === "/checkout" ? (
+      
+      {isCheckout ? (
         <PaymentPage />
       ) : (
         <>
