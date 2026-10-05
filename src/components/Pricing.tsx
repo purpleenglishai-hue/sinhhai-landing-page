@@ -21,8 +21,8 @@ interface ProductService {
 // Cấu hình Thông tin Ngân Hàng Cá Nhân của Anh Long
 const BANK_CONFIG = {
   bankId: "MB", // Ngân hàng MBBank (hoặc VCB, TCB, ACB...)
-  accountNo: "090123456789", // <-- ĐỔI THÀNH SỐ TÀI KHOẢN NGÂN HÀNG CỦA ANH
-  accountName: "TRAN THIEU LONG", // <-- ĐỔI THÀNH TÊN CHỦ TÀI KHOẢN KHÔNG DẤU
+  accountNo: "090123456789", // <-- SỬA THÀNH SỐ TÀI KHOẢN CỦA ANH
+  accountName: "TRAN THIEU LONG", // <-- SỬA THÀNH TÊN CỦA ANH KHÔNG DẤU
 };
 
 const pricingData: ProductService[] = [
@@ -85,6 +85,7 @@ const pricingData: ProductService[] = [
         id: "SH_STUDY_Y",
         title: "Gói Năm",
         price: "1.990.000đ",
+        numericPrice: 1990000,
         cycle: "/ năm",
         description: "Tối ưu hóa toàn bộ kho tri thức cá nhân",
         features: ["Không giới hạn dung lượng lưu trữ", "Tìm kiếm tri thức Semantic AI", "Hỗ trợ backup dữ liệu"],
@@ -117,6 +118,7 @@ const pricingData: ProductService[] = [
         id: "SH_STUDIO_Y",
         title: "Gói Năm",
         price: "2.890.000đ",
+        numericPrice: 2890000,
         cycle: "/ năm",
         description: "Sản xuất tài sản số & sản phẩm commercial",
         features: ["Không giới hạn tạo ảnh AI", "Bản quyền thương mại đầy đủ", "Ưu tiên Rendering tốc độ cao"],
@@ -140,6 +142,7 @@ const pricingData: ProductService[] = [
         id: "SH_WORKFLOW_Q",
         title: "Gói Quý",
         price: "1.290.000đ",
+        numericPrice: 1290000,
         cycle: "/ 3 tháng",
         description: "Tăng 500% năng suất làm việc nhóm",
         features: ["Chạy 3.500 Workflow/quý", "Cấu hình Automation phức tạp", "Báo cáo hiệu suất tự động"],
@@ -148,6 +151,7 @@ const pricingData: ProductService[] = [
         id: "SH_WORKFLOW_Y",
         title: "Gói Năm",
         price: "3.990.000đ",
+        numericPrice: 3990000,
         cycle: "/ năm",
         description: "Hệ thống tự vận hành 24/7 tối ưu",
         features: ["Không giới hạn Lượt chạy Workflow", "Xử lý dữ liệu song song", "Hỗ trợ tích hợp Custom Node"],
@@ -163,26 +167,22 @@ export const Pricing = () => {
 
   const currentUser = auth.currentUser;
 
-  // Mở Modal Thanh Toán
   const handleOpenPayment = (plan: PricingPlan) => {
     setSelectedPlan(plan);
     setIsSuccess(false);
   };
 
-  // Đóng Modal Thanh Toán
   const handleClosePayment = () => {
     setSelectedPlan(null);
     setIsSuccess(false);
   };
 
-  // Copy Nội Dung Chuyển Khoản
   const copyTransferContent = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Tạo URL VietQR tự động
   const getQrUrl = (plan: PricingPlan) => {
     const userIdentifier = currentUser?.email ? currentUser.email.split("@")[0] : "KHACH";
     const memo = `SINHHAI ${plan.id} ${userIdentifier}`.toUpperCase();
@@ -196,7 +196,6 @@ export const Pricing = () => {
 
   return (
     <section id="pricing" className="container py-16 sm:py-24 space-y-16">
-      {/* Tiêu đề chính */}
       <div className="text-center space-y-4">
         <h2 className="text-3xl md:text-4xl font-bold text-center">
           Bảng Giá Dịch Vụ <span className="text-purple-600 dark:text-purple-400">SinhHAI</span>
@@ -206,7 +205,6 @@ export const Pricing = () => {
         </p>
       </div>
 
-      {/* Danh sách dịch vụ */}
       {pricingData.map((service, index) => (
         <div key={index} className="space-y-6">
           <div className="border-l-4 border-purple-600 pl-4 py-1">
@@ -264,11 +262,17 @@ export const Pricing = () => {
 
       {/* MODAL THANH TOÁN QR BANK CÁ NHÂN */}
       {selectedPlan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="relative w-full max-w-lg my-auto rounded-xl bg-background p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 max-h-[90vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
+          onClick={handleClosePayment}
+        >
+          <div 
+            className="relative w-full max-w-lg my-auto rounded-xl bg-background p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={handleClosePayment}
-              className="absolute right-4 top-4 text-muted-foreground hover:text-purple-600 transition-colors"
+              className="absolute right-4 top-4 p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 hover:bg-purple-200 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
@@ -282,7 +286,6 @@ export const Pricing = () => {
                   Gói chọn: <span className="font-bold text-foreground">{selectedPlan.title}</span> ({selectedPlan.price})
                 </p>
 
-                {/* Mã QR Tự Động */}
                 <div className="flex justify-center my-3">
                   <div className="p-3 bg-white rounded-xl shadow-md border border-purple-200">
                     <img
@@ -293,7 +296,6 @@ export const Pricing = () => {
                   </div>
                 </div>
 
-                {/* Thông tin chuyển khoản */}
                 <div className="space-y-2 text-left bg-purple-50 dark:bg-purple-950/40 p-4 rounded-lg text-sm border border-purple-200 dark:border-purple-900">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Ngân hàng:</span>
@@ -316,7 +318,7 @@ export const Pricing = () => {
                       <button
                         onClick={() => copyTransferContent(getTransferMemo(selectedPlan))}
                         className="p-1 hover:bg-purple-200 dark:hover:bg-purple-800 rounded transition-colors"
-                        title="Sao chép nội dung"
+                        title="Sao chép"
                       >
                         {copied ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-purple-600" />}
                       </button>
@@ -326,7 +328,7 @@ export const Pricing = () => {
 
                 <button
                   onClick={() => setIsSuccess(true)}
-                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow-md shadow-purple-500/20 transition-colors"
+                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow-md transition-colors"
                 >
                   Xác Nhận Đã Chuyển Khoản
                 </button>
@@ -338,7 +340,7 @@ export const Pricing = () => {
                   Gửi Yêu Cầu Thành Công!
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed px-4">
-                  Hệ thống đang xác nhận giao dịch của bạn. Tài khoản sẽ được kích hoạt / cộng Token tự động trong vòng <span className="font-bold text-foreground">3 - 5 phút</span>.
+                  Hệ thống đang xác nhận giao dịch. Tài khoản sẽ được kích hoạt / cộng Token trong vòng <span className="font-bold text-foreground">3 - 5 phút</span>.
                 </p>
                 <button
                   onClick={handleClosePayment}
