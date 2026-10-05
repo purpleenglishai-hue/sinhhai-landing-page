@@ -285,14 +285,14 @@ export const Navbar = () => {
         </NavigationMenuList>
       </NavigationMenu>
 
-      {/* POPUP AUTH MODAL: Đã sửa lỗi hiển thị tràn top & che phần đầu */}
+      {/* POPUP AUTH MODAL: Sửa z-index thành z-[9999] và căn giữa chuẩn màn hình */}
       {isAuthOpen && (
         <div 
-          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
           onClick={closeAuthModal}
         >
           <div 
-            className="relative w-full max-w-md bg-background rounded-xl p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 my-auto"
+            className="relative w-full max-w-md bg-background rounded-xl p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 my-auto max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Nút X Đóng Popup */}
