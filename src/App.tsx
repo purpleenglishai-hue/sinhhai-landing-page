@@ -14,7 +14,7 @@ import { Services } from "./components/Services";
 import { Sponsors } from "./components/Sponsors";
 import { Team } from "./components/Team";
 import { Testimonials } from "./components/Testimonials";
-import { PaymentPage } from "./components/PaymentPage";
+import { PaymentPage } from "./PaymentPage";
 import "./App.css";
 
 function App() {
