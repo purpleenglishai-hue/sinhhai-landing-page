@@ -8,15 +8,21 @@ interface PaymentPageProps {
 export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
   const [copied, setCopied] = useState(false);
 
-  // --- THÔNG TIN TÀI KHOẢN MB BANK CỦA BẠN ---
+  // Đọc thông tin gói cước từ URL (mặc định nếu không truyền là gói 199k)
+  const searchParams = new URLSearchParams(window.location.search);
+  const planName = searchParams.get("plan") || "Gói SinhHAI Premium";
+  const AMOUNT = Number(searchParams.get("price")) || 199000;
+
+  // --- THÔNG TIN TÀI KHOẢN MB BANK ---
   const BANK_ID = "MB"; 
   const ACCOUNT_NO = "0909561710"; 
   const ACCOUNT_NAME = "PHAN MONG THUY"; 
-  const AMOUNT = 199000; // Số tiền (VND)
-  const ORDER_CODE = "SH" + Math.floor(100000 + Math.random() * 900000); // Mã đơn hàng tự động
+  
+  // Tạo Mã đơn hàng ngẫu nhiên cố định cho phiên giao dịch
+  const [orderCode] = useState(() => "SH" + Math.floor(100000 + Math.random() * 900000));
 
-  // Tự động tạo URL ảnh VietQR chuẩn Napas247
-  const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${AMOUNT}&addInfo=${ORDER_CODE}&accountName=${encodeURIComponent(
+  // Tự động tạo URL VietQR dựa trên đúng giá trị AMOUNT truyền tới
+  const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${AMOUNT}&addInfo=${orderCode}&accountName=${encodeURIComponent(
     ACCOUNT_NAME
   )}`;
 
@@ -29,7 +35,6 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 text-slate-800 dark:text-slate-100">
       <div className="max-w-4xl mx-auto">
-        {/* Nút Quay lại */}
         {onBack && (
           <button
             onClick={onBack}
@@ -47,18 +52,14 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
                 <CreditCard className="w-5 h-5 text-indigo-600" /> Tóm tắt đơn hàng
               </h2>
               <div className="border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
-                <p className="font-semibold text-lg">Gói SinhHAI Premium / Bản quyền</p>
+                <p className="font-semibold text-lg text-indigo-600">{planName}</p>
                 <p className="text-sm text-slate-500">Kích hoạt tài khoản ngay sau khi thanh toán</p>
               </div>
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Mã đơn hàng:</span>
-                  <span className="font-mono font-bold text-indigo-600">{ORDER_CODE}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Giá gốc:</span>
-                  <span className="line-through text-slate-400">499.000 đ</span>
+                  <span className="font-mono font-bold text-indigo-600">{orderCode}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold pt-2 border-t border-slate-100 dark:border-slate-800">
                   <span>Tổng thanh toán:</span>
@@ -67,7 +68,6 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
               </div>
             </div>
 
-            {/* Cam kết uy tín */}
             <div className="bg-indigo-50/50 dark:bg-indigo-950/30 p-5 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 space-y-3">
               <div className="flex items-center gap-3 text-sm font-medium text-indigo-900 dark:text-indigo-300">
                 <ShieldCheck className="w-5 h-5 text-indigo-600 shrink-0" />
@@ -90,12 +90,10 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
               <h3 className="text-lg font-bold mb-2">Mở App Ngân hàng bất kỳ để Quét QR</h3>
               <p className="text-sm text-slate-500 mb-6">Mã QR đã bao gồm số tiền và nội dung chuyển khoản chính xác</p>
 
-              {/* Mã QR Tự Động Tạo */}
               <div className="inline-block p-3 bg-white rounded-xl border border-slate-200 shadow-inner mb-6">
                 <img src={qrUrl} alt="Mã QR Thanh Toán MB Bank" className="w-64 h-64 object-contain mx-auto" />
               </div>
 
-              {/* Thông tin chuyển khoản thủ công */}
               <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl text-left space-y-3 text-sm">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500">Ngân hàng:</span>
@@ -121,9 +119,9 @@ export const PaymentPage: React.FC<PaymentPageProps> = ({ onBack }) => {
                 <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-700">
                   <span className="text-slate-500">Nội dung chuyển khoản:</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-indigo-600">{ORDER_CODE}</span>
+                    <span className="font-mono font-bold text-indigo-600">{orderCode}</span>
                     <button
-                      onClick={() => copyToClipboard(ORDER_CODE)}
+                      onClick={() => copyToClipboard(orderCode)}
                       className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition"
                       title="Sao chép"
                     >
