@@ -1,4 +1,4 @@
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Zap } from "lucide-react";
 
 interface PricingPlan {
   id: string;
@@ -18,7 +18,7 @@ interface ProductService {
 
 const pricingData: ProductService[] = [
   {
-    category: "Loại 1: Hệ Sinh Thái SinhHAI (Nâng Cấp Năng Lượng AI)",
+    category: "Loại 1: Hệ Sinh Thái SinhHAI (Nâng Cấp Thanh Năng Lượng AI)",
     subtitle: "Mở khóa toàn bộ tính năng Chatbot, StudyPlace, Studio & Workflow AI",
     plans: [
       {
@@ -31,7 +31,7 @@ const pricingData: ProductService[] = [
         features: [
           "Giới hạn một số tính năng nâng cao",
           "Truy cập Chatbot, StudyPlace, Studio",
-          "Cấp số lượng Mana tiêu chuẩn",
+          "Cấp Năng Lượng AI tiêu chuẩn",
           "Hỗ trợ qua kênh cộng đồng 24/7",
         ],
       },
@@ -46,7 +46,7 @@ const pricingData: ProductService[] = [
           "Full 100% tính năng trong hệ sinh thái",
           "Truy cập tất cả các Model AI mạnh nhất",
           "Tự động hóa Workflow không giới hạn",
-          "Cấp lượng Mana dồi dào hàng tháng",
+          "Cấp Thanh Năng Lượng AI dồi dào hàng tháng",
         ],
       },
       {
@@ -159,7 +159,7 @@ export const Pricing = () => {
           Bảng Giá Dịch Vụ <span className="text-purple-600 dark:text-purple-400">SinhHAI</span>
         </h2>
         <p className="text-xl text-muted-foreground pt-2">
-          Lựa chọn gói dịch vụ nâng cấp phù hợp để tối ưu hóa hiệu suất làm việc & học tập
+          Lựa chọn gói dịch vụ nâng cấp Năng Lượng AI phù hợp để tối ưu hóa hiệu suất làm việc & học tập
         </p>
       </div>
 
@@ -180,8 +180,8 @@ export const Pricing = () => {
               >
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-xl font-bold text-purple-600 dark:text-purple-400">
-                      {plan.title}
+                    <h4 className="text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-2">
+                      <span>{plan.title}</span>
                     </h4>
                     <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
                   </div>
@@ -205,10 +205,10 @@ export const Pricing = () => {
 
                 <div className="pt-6 mt-auto">
                   <a
-                    href={`/checkout?plan=${encodeURIComponent(`${service.category} -${plan.title}`)}&price=${plan.numericPrice}`}
+                    href={`/checkout?planId=${plan.id}&planName=${encodeURIComponent(plan.title)}&price=${plan.numericPrice}`}
                     className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md shadow-purple-500/20 transition-colors flex items-center justify-center gap-2 text-center"
                   >
-                    <span>Đăng Ký Ngay</span>
+                    <span>Nâng Cấp Ngay</span>
                     <ArrowRight className="w-4 h-4" />
                   </a>
                 </div>
