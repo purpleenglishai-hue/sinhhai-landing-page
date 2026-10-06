@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { User, Zap, HardDrive, CreditCard, Clock, CheckCircle2, ShieldCheck, Sparkles, Settings, Bell, Lock, Users, HelpCircle, ArrowUpRight } from "lucide-react";
+import { Zap, HardDrive, CreditCard, Clock, CheckCircle2, ShieldCheck, Sparkles, Settings, Users, ArrowUpRight } from "lucide-react";
 
 // Kết nối Firebase từ cấu trúc thư mục hiện tại của bạn
 import { auth, db } from "./src/firebase";
@@ -153,7 +153,7 @@ export const ProfilePage = () => {
           </nav>
         </div>
 
-        {/* Storage Widget ở bottom sidebar (giống mẫu hình) */}
+        {/* Storage Widget ở bottom sidebar */}
         <div className="mt-8 pt-6 border-t border-white/15 space-y-3">
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs font-semibold text-purple-200">
@@ -178,7 +178,7 @@ export const ProfilePage = () => {
             <ArrowUpRight className="w-3.5 h-3.5" />
           </a>
 
-          {/* User info mini badge dưới cùng sidebar */}
+          {/* User info mini badge */}
           <div className="pt-4 mt-2 border-t border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2.5 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-purple-500/40 border border-white/20 flex items-center justify-center text-white font-bold flex-shrink-0 text-xs">
@@ -210,8 +210,8 @@ export const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Tab Navigation (Mô phỏng chính xác menu ngang trong hình mẫu) */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-400 scrollbar-none">
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-400">
           {["Hồ sơ", "Mật khẩu", "Gói dịch vụ", "Thanh toán", "Thông báo", "Tích hợp AI", "API"].map((tab, idx) => {
             const keyMap = ["profile", "password", "plan", "billing", "notifications", "integrations", "api"];
             const currentKey = keyMap[idx] || "profile";
