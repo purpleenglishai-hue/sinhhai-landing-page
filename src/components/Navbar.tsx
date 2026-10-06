@@ -34,6 +34,9 @@ interface RouteProps {
   label: string;
 }
 
+// Đường dẫn tới trang Payment / Checkout
+const PAYMENT_PATH = "/checkout";
+
 const baseRouteList: RouteProps[] = [
   {
     href: "#features",
@@ -100,12 +103,14 @@ export const Navbar = () => {
     }
   };
 
+  // Chuyển hướng tới trang Thanh toán
   const handleNavigateToCheckout = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpen(false);
-    window.location.href = "/checkout";
+    window.location.href = PAYMENT_PATH;
   };
 
+  // Chuyển hướng tới trang Hồ sơ
   const handleNavigateToProfile = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpen(false);
@@ -212,6 +217,7 @@ export const Navbar = () => {
                       </a>
                     ))}
 
+                    {/* Nút Hồ Sơ Mobile (Khi đã đăng nhập) */}
                     {user && (
                       <a
                         href="/profile"
@@ -223,12 +229,13 @@ export const Navbar = () => {
                       </a>
                     )}
 
+                    {/* Nút Thanh Toán Mobile */}
                     <a
-                      href="/checkout"
+                      href={PAYMENT_PATH}
                       onClick={handleNavigateToCheckout}
-                      className="w-[160px] mt-2 flex items-center justify-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-1.5 px-3 rounded-md font-medium text-xs shadow cursor-pointer transition-all"
+                      className="w-[160px] mt-2 flex items-center justify-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-3 rounded-md font-semibold text-xs shadow cursor-pointer transition-all"
                     >
-                      <CreditCard className="w-3.5 h-3.5" />
+                      <CreditCard className="w-4 h-4" />
                       Thanh toán
                     </a>
 
@@ -276,6 +283,7 @@ export const Navbar = () => {
                 </a>
               ))}
 
+              {/* Nút Hồ Sơ trên Navigation Menu Desktop */}
               {user && (
                 <a
                   href="/profile"
@@ -288,11 +296,13 @@ export const Navbar = () => {
               )}
             </nav>
 
-            <div className="hidden md:flex gap-1.5 items-center flex-shrink-0">
+            {/* Desktop Right Actions */}
+            <div className="hidden md:flex gap-2 items-center flex-shrink-0">
+              {/* Nút Thanh Toán Desktop */}
               <a
-                href="/checkout"
+                href={PAYMENT_PATH}
                 onClick={handleNavigateToCheckout}
-                className="flex items-center gap-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-medium px-2.5 py-1.5 rounded-md shadow transition-all cursor-pointer"
+                className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow hover:shadow-md transition-all cursor-pointer"
               >
                 <CreditCard className="w-3.5 h-3.5" />
                 Thanh toán
