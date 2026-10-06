@@ -16,6 +16,7 @@ import { Team } from "./components/Team";
 import { Testimonials } from "./components/Testimonials";
 
 import { PaymentPage } from "../PaymentPage";
+import { ProfilePage } from "../ProfilePage";
 
 import "./App.css";
 
@@ -32,6 +33,7 @@ function App() {
   }, []);
 
   const isCheckout = currentPath === "/checkout";
+  const isProfile = currentPath === "/profile";
 
   return (
     <>
@@ -39,6 +41,8 @@ function App() {
 
       {isCheckout ? (
         <PaymentPage onBack={() => (window.location.href = "/")} />
+      ) : isProfile ? (
+        <ProfilePage />
       ) : (
         <>
           <Hero />
