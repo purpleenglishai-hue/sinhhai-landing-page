@@ -34,7 +34,7 @@ interface RouteProps {
   label: string;
 }
 
-const routeList: RouteProps[] = [
+const baseRouteList: RouteProps[] = [
   {
     href: "#features",
     label: "Tính năng SinhHAI",
@@ -203,7 +203,7 @@ export const Navbar = () => {
                     <SheetTitle className="font-bold text-xl text-purple-600">Nền tảng SinhHAI</SheetTitle>
                   </SheetHeader>
                   <nav className="flex flex-col justify-center items-center gap-2 mt-4">
-                    {routeList.map(({ href, label }: RouteProps) => (
+                    {baseRouteList.map(({ href, label }: RouteProps) => (
                       <a
                         key={label}
                         href={href}
@@ -213,6 +213,18 @@ export const Navbar = () => {
                         {label}
                       </a>
                     ))}
+
+                    {/* Nút Hồ Sơ Trên Menu Mobile (Chỉ hiện khi đã Đăng Nhập) */}
+                    {user && (
+                      <a
+                        href="/profile"
+                        onClick={handleNavigateToProfile}
+                        className={`${buttonVariants({ variant: "ghost" })} text-purple-600 dark:text-purple-400 font-semibold flex items-center gap-1.5`}
+                      >
+                        <User className="w-4 h-4" />
+                        Hồ sơ của tôi
+                      </a>
+                    )}
 
                     {/* Nút thanh toán Mobile */}
                     <a
@@ -225,27 +237,17 @@ export const Navbar = () => {
                     </a>
 
                     {user ? (
-                      <>
-                        <a
-                          href="/profile"
-                          onClick={handleNavigateToProfile}
-                          className="w-[170px] mt-2 flex items-center justify-center gap-2 bg-purple-100 dark:bg-purple-900/50 hover:bg-purple-200 text-purple-700 dark:text-purple-300 py-2 px-4 rounded-md font-medium text-sm transition-all"
-                        >
-                          <User className="w-4 h-4 text-purple-600" />
-                          Hồ sơ của tôi
-                        </a>
-                        <Button
-                          onClick={() => {
-                            handleLogout();
-                            setIsOpen(false);
-                          }}
-                          variant="destructive"
-                          className="w-[170px] mt-2 flex gap-2"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          Đăng xuất
-                        </Button>
-                      </>
+                      <Button
+                        onClick={() => {
+                          handleLogout();
+                          setIsOpen(false);
+                        }}
+                        variant="destructive"
+                        className="w-[170px] mt-2 flex gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Đăng xuất
+                      </Button>
                     ) : (
                       <Button
                         onClick={() => {
@@ -264,8 +266,8 @@ export const Navbar = () => {
             </span>
 
             {/* Desktop nav */}
-            <nav className="hidden md:flex gap-2">
-              {routeList.map((route: RouteProps, i) => (
+            <nav className="hidden md:flex gap-2 items-center">
+              {baseRouteList.map((route: RouteProps, i) => (
                 <a
                   href={route.href}
                   key={i}
@@ -276,6 +278,20 @@ export const Navbar = () => {
                   {route.label}
                 </a>
               ))}
+
+              {/* Nút Hồ Sơ Nằm Trực Tiếp Trên Thanh Menu Desktop (Chỉ hiện khi đã Đăng Nhập) */}
+              {user && (
+                <a
+                  href="/profile"
+                  onClick={handleNavigateToProfile}
+                  className={`text-[17px] text-purple-600 dark:text-purple-400 font-semibold hover:text-purple-700 transition-colors flex items-center gap-1.5 ${buttonVariants({
+                    variant: "ghost",
+                  })}`}
+                >
+                  <User className="w-4 h-4" />
+                  Hồ sơ của tôi
+                </a>
+              )}
             </nav>
 
             <div className="hidden md:flex gap-2 items-center">
