@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { User, Zap, HardDrive, CreditCard, Clock, CheckCircle2 } from "lucide-react";
 
-// Import Firebase
-import { auth, db } from "./firebase";
+// Sửa đường dẫn import firebase từ ./src/firebase để khớp với cấu trúc thư mục
+import { auth, db } from "./src/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot, collection, query, where, orderBy } from "firebase/firestore";
 
