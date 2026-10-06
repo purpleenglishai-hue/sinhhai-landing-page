@@ -102,6 +102,7 @@ export const Navbar = () => {
   const handleNavigateToPayment = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpen(false);
+    // Điều hướng trực tiếp và mượt mà sang trang thanh toán PaymentPage
     window.location.href = "/payment";
   };
 
