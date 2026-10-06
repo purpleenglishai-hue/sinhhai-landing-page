@@ -102,6 +102,13 @@ export const Navbar = () => {
     window.location.href = "/checkout";
   };
 
+  // Điều hướng đến Trang Hồ sơ (/profile)
+  const handleNavigateToProfile = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsOpen(false);
+    window.location.href = "/profile";
+  };
+
   // Đăng nhập Google
   const handleGoogleLogin = async () => {
     setAuthError("");
@@ -158,6 +165,9 @@ export const Navbar = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      if (window.location.pathname === "/profile") {
+        window.location.href = "/";
+      }
     } catch (error) {
       console.error("Lỗi đăng xuất:", error);
     }
@@ -215,17 +225,27 @@ export const Navbar = () => {
                     </a>
 
                     {user ? (
-                      <Button
-                        onClick={() => {
-                          handleLogout();
-                          setIsOpen(false);
-                        }}
-                        variant="destructive"
-                        className="w-[170px] mt-2 flex gap-2"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Đăng xuất
-                      </Button>
+                      <>
+                        <a
+                          href="/profile"
+                          onClick={handleNavigateToProfile}
+                          className="w-[170px] mt-2 flex items-center justify-center gap-2 bg-purple-100 dark:bg-purple-900/50 hover:bg-purple-200 text-purple-700 dark:text-purple-300 py-2 px-4 rounded-md font-medium text-sm transition-all"
+                        >
+                          <User className="w-4 h-4 text-purple-600" />
+                          Hồ sơ của tôi
+                        </a>
+                        <Button
+                          onClick={() => {
+                            handleLogout();
+                            setIsOpen(false);
+                          }}
+                          variant="destructive"
+                          className="w-[170px] mt-2 flex gap-2"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Đăng xuất
+                        </Button>
+                      </>
                     ) : (
                       <Button
                         onClick={() => {
@@ -271,10 +291,16 @@ export const Navbar = () => {
 
               {user ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium flex items-center gap-1 text-purple-600 dark:text-purple-300">
-                    <User className="w-4 h-4" />
-                    {user.displayName || user.email}
-                  </span>
+                  <a
+                    href="/profile"
+                    onClick={handleNavigateToProfile}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-md text-sm font-medium transition-all"
+                  >
+                    <User className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <span className="max-w-[120px] truncate">
+                      {user.displayName || user.email}
+                    </span>
+                  </a>
                   <Button
                     onClick={handleLogout}
                     variant="outline"
