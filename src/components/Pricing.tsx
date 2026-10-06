@@ -18,7 +18,7 @@ interface ProductService {
 
 const pricingData: ProductService[] = [
   {
-    category: "Loại 1: Hệ Sinh Thái SinhHAI (Nâng Cấp Thanh Năng Lượng AI)",
+    category: "Loại 1: Hệ Sinh Thái SinhHAI (Nâng Cấp Năng Lượng AI)",
     subtitle: "Mở khóa toàn bộ tính năng Chatbot, StudyPlace, Studio & Workflow AI",
     plans: [
       {
@@ -31,7 +31,7 @@ const pricingData: ProductService[] = [
         features: [
           "Giới hạn một số tính năng nâng cao",
           "Truy cập Chatbot, StudyPlace, Studio",
-          "Cấp Năng Lượng AI tiêu chuẩn",
+          "Cấp Năng Lượng AI tiêu chuẩn hàng tháng",
           "Hỗ trợ qua kênh cộng đồng 24/7",
         ],
       },
@@ -180,8 +180,9 @@ export const Pricing = () => {
               >
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-2">
-                      <span>{plan.title}</span>
+                    <h4 className="text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+                      <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
+                      {plan.title}
                     </h4>
                     <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
                   </div>
@@ -208,7 +209,7 @@ export const Pricing = () => {
                     href={`/checkout?planId=${plan.id}&planName=${encodeURIComponent(plan.title)}&price=${plan.numericPrice}`}
                     className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md shadow-purple-500/20 transition-colors flex items-center justify-center gap-2 text-center"
                   >
-                    <span>Nâng Cấp Ngay</span>
+                    <span>Đăng Ký Ngay</span>
                     <ArrowRight className="w-4 h-4" />
                   </a>
                 </div>
