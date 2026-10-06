@@ -1,4 +1,4 @@
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, HardDrive, GraduationCap, Zap } from "lucide-react";
 
 interface PricingPlan {
   id: string;
@@ -8,6 +8,7 @@ interface PricingPlan {
   cycle: string;
   description: string;
   features: string[];
+  popular?: boolean;
 }
 
 interface ProductService {
@@ -18,134 +19,87 @@ interface ProductService {
 
 const pricingData: ProductService[] = [
   {
-    category: "sinhHAI",
-    subtitle: "Trợ lý Chatbot AI đa năng thông minh",
+    category: "Gói Năng Lượng Hệ Sinh Thái SinhHAI",
+    subtitle: "Truy cập toàn bộ Chatbot, Studio Tạo Ảnh, Workflow & StudyPlace",
     plans: [
       {
-        id: "SH_BOT_M",
-        title: "Gói Tháng",
+        id: "SH_ECO_TRY",
+        title: "Gói Trải Nghiệm",
         price: "199.000đ",
         numericPrice: 199000,
         cycle: "/ tháng",
-        description: "Dành cho cá nhân trải nghiệm linh hoạt",
-        features: ["Truy cập Chatbot AI full tính năng", "Tốc độ phản hồi ưu tiên", "Hỗ trợ 24/7"],
+        description: "Dành cho cá nhân bắt đầu khám phá hệ sinh thái AI",
+        features: [
+          "Cấp Hạn Mức AI cơ bản hàng tháng",
+          "Giới hạn một số Workflow & Model cao cấp",
+          "Truy cập Chatbot, Studio & StudyPlace",
+          "Hỗ trợ kỹ thuật qua Community",
+        ],
       },
       {
-        id: "SH_BOT_Q",
-        title: "Gói Quý",
-        price: "499.000đ",
-        numericPrice: 499000,
-        cycle: "/ 3 tháng",
-        description: "Tiết kiệm 15% chi phí cho công việc",
-        features: ["Tất cả tính năng gói Tháng", "Lưu trữ lịch sử chat không giới hạn", "Tối ưu câu lệnh Prompt"],
-      },
-      {
-        id: "SH_BOT_Y",
-        title: "Gói Năm",
-        price: "1.490.000đ",
-        numericPrice: 1490000,
-        cycle: "/ năm",
-        description: "Giải pháp toàn diện tiết kiệm tối đa",
-        features: ["Tất cả quyền lợi nâng cao", "Cập nhật mô hình AI mới nhất", "Hỗ trợ 1-1 chuyên sâu"],
-      },
-    ],
-  },
-  {
-    category: "sinhhai-studyplace",
-    subtitle: "Không gian học tập & làm việc tích hợp hồ sơ lưu trữ AI",
-    plans: [
-      {
-        id: "SH_STUDY_M",
-        title: "Gói Tháng",
-        price: "249.000đ",
-        numericPrice: 249000,
-        cycle: "/ tháng",
-        description: "Không gian ghi chú & quản lý tài liệu AI",
-        features: ["Bộ nhớ lưu trữ AI 50GB", "Tự động tóm tắt tài liệu", "Quản lý tiến độ học tập"],
-      },
-      {
-        id: "SH_STUDY_Q",
-        title: "Gói Quý",
-        price: "649.000đ",
-        numericPrice: 649000,
-        cycle: "/ 3 tháng",
-        description: "Dành cho học sinh, sinh viên & tác giả",
-        features: ["Bộ nhớ lưu trữ AI 200GB", "Phân tích hồ sơ chuyên sâu", "Chia sẻ workspace học tập"],
-      },
-      {
-        id: "SH_STUDY_Y",
-        title: "Gói Năm",
-        price: "1.990.000đ",
-        numericPrice: 1990000,
-        cycle: "/ năm",
-        description: "Tối ưu hóa toàn bộ kho tri thức cá nhân",
-        features: ["Không giới hạn dung lượng lưu trữ", "Tìm kiếm tri thức Semantic AI", "Hỗ trợ backup dữ liệu"],
-      },
-    ],
-  },
-  {
-    category: "sinhhai-studio",
-    subtitle: "Công cụ sáng tạo & thiết kế hình ảnh AI khổ lớn",
-    plans: [
-      {
-        id: "SH_STUDIO_M",
-        title: "Gói Tháng",
-        price: "349.000đ",
-        numericPrice: 349000,
-        cycle: "/ tháng",
-        description: "Tạo ảnh AI sắc nét xuất bản phẩm",
-        features: ["Tạo 500 hình ảnh AI khổ lớn/tháng", "Độ phân giải 300 DPI chuẩn in", "Xuất file không dán logo"],
-      },
-      {
-        id: "SH_STUDIO_Q",
-        title: "Gói Quý",
-        price: "899.000đ",
-        numericPrice: 899000,
-        cycle: "/ 3 tháng",
-        description: "Dành cho Designer & Nhà sáng tạo nội dung",
-        features: ["Tạo 1.800 hình ảnh AI/quý", "Tỷ lệ A4 / 2:3 chuyên nghiệp", "Công cụ chỉnh sửa nâng cao"],
-      },
-      {
-        id: "SH_STUDIO_Y",
-        title: "Gói Năm",
-        price: "2.890.000đ",
-        numericPrice: 2890000,
-        cycle: "/ năm",
-        description: "Sản xuất tài sản số & sản phẩm commercial",
-        features: ["Không giới hạn tạo ảnh AI", "Bản quyền thương mại đầy đủ", "Ưu tiên Rendering tốc độ cao"],
-      },
-    ],
-  },
-  {
-    category: "workflow automatic AI",
-    subtitle: "Hệ thống tự động hóa quy trình làm việc AI thông minh",
-    plans: [
-      {
-        id: "SH_WORKFLOW_M",
-        title: "Gói Tháng",
+        id: "SH_ECO_FULL",
+        title: "Gói Full Tính Năng",
         price: "499.000đ",
         numericPrice: 499000,
         cycle: "/ tháng",
-        description: "Tự động hóa các tác vụ lặp đi lặp lại",
-        features: ["Chạy 1.000 Workflow/tháng", "Tích hợp đa nền tảng API", "Giao diện kéo thả trực quan"],
+        description: "Mở khóa toàn bộ sức mạnh AI không giới hạn tính năng",
+        popular: true,
+        features: [
+          "Cấp Hạn Mức AI tiêu chuẩn cao",
+          "Mở khóa 100% tính năng trong Hệ sinh thái",
+          "Sử dụng toàn bộ các Model AI đỉnh cao",
+          "Ưu tiên tốc độ xử lý Rendering & Workflow",
+          "Hỗ trợ ưu tiên 24/7",
+        ],
       },
       {
-        id: "SH_WORKFLOW_Q",
-        title: "Gói Quý",
-        price: "1.290.000đ",
-        numericPrice: 1290000,
-        cycle: "/ 3 tháng",
-        description: "Tăng 500% năng suất làm việc nhóm",
-        features: ["Chạy 3.500 Workflow/quý", "Cấu hình Automation phức tạp", "Báo cáo hiệu suất tự động"],
+        id: "SH_ECO_YEAR",
+        title: "Gói Năm Đột Phá",
+        price: "5.988.000đ",
+        numericPrice: 5988000,
+        cycle: "/ 12 tháng",
+        description: "499.000đ x 12 tháng - Ưu tiên đặc quyền cao nhất",
+        features: [
+          "Tất cả quyền lợi của Gói Full Tính Năng",
+          "Ưu tiên trải nghiệm sớm các tính năng AI mới",
+          "Hạn Mức AI tích lũy cả năm",
+          "Hỗ trợ 1-1 tối ưu quy trình công việc",
+        ],
+      },
+    ],
+  },
+  {
+    category: "Dịch Vụ Lưu Trữ & Giáo Dục Chuyên Sâu",
+    subtitle: "Thuê bao mở rộng dung lượng Firebase Storage & Đồng hành 1-1",
+    plans: [
+      {
+        id: "SH_STORAGE_FLEX",
+        title: "Thuê Bao Lưu Trữ AI",
+        price: "Từ 49.000đ",
+        numericPrice: 49000,
+        cycle: "/ tháng",
+        description: "Mở rộng bộ nhớ Cloud cho tài liệu & hồ sơ AI",
+        features: [
+          "Tùy chọn dung lượng: 1GB | 5GB | 10GB | 100GB | 500GB",
+          "Lưu trữ hồ sơ tài liệu bảo mật trên Firebase Storage",
+          "AI đọc và phân tích tài liệu dung lượng lớn",
+          "Đồng bộ thời gian thực trên mọi thiết bị",
+        ],
       },
       {
-        id: "SH_WORKFLOW_Y",
-        title: "Gói Năm",
-        price: "3.990.000đ",
-        numericPrice: 3990000,
-        cycle: "/ năm",
-        description: "Hệ thống tự vận hành 24/7 tối ưu",
-        features: ["Không giới hạn Lượt chạy Workflow", "Xử lý dữ liệu song song", "Hỗ trợ tích hợp Custom Node"],
+        id: "SH_STUDY_TEACHER",
+        title: "StudyPlace + Giáo Viên",
+        price: "1.499.000đ",
+        numericPrice: 1499000,
+        cycle: "/ tháng",
+        description: "499k Thuê bao tháng + 1tr Phụ phí Giáo viên đồng hành",
+        popular: true,
+        features: [
+          "Toàn bộ tính năng SinhHAI-StudyPlace",
+          "Giáo viên đồng hành & kèm 1-1 trực tiếp",
+          "Thiết kế lộ trình học tập & nghiên cứu riêng",
+          "Đánh giá & sửa bài chi tiết hàng tuần",
+        ],
       },
     ],
   },
@@ -159,7 +113,7 @@ export const Pricing = () => {
           Bảng Giá Dịch Vụ <span className="text-purple-600 dark:text-purple-400">SinhHAI</span>
         </h2>
         <p className="text-xl text-muted-foreground pt-2">
-          Lựa chọn gói thuê bao phù hợp để bứt phá hiệu suất công việc của bạn
+          Lựa chọn gói hạn mức và dịch vụ phù hợp để tối ưu hóa hiệu suất làm việc của bạn
         </p>
       </div>
 
@@ -172,12 +126,28 @@ export const Pricing = () => {
             <p className="text-sm text-muted-foreground">{service.subtitle}</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div
+            className={`grid gap-6 ${
+              service.plans.length === 2
+                ? "md:grid-cols-2 max-w-4xl mx-auto"
+                : "md:grid-cols-3"
+            }`}
+          >
             {service.plans.map((plan, i) => (
               <div
                 key={i}
-                className="flex flex-col justify-between rounded-xl border border-purple-200 dark:border-purple-900/50 bg-card p-6 shadow-sm hover:border-purple-500 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10"
+                className={`relative flex flex-col justify-between rounded-xl border p-6 shadow-sm transition-all duration-300 hover:shadow-lg ${
+                  plan.popular
+                    ? "border-purple-600 dark:border-purple-500 bg-card shadow-purple-500/10 ring-2 ring-purple-600/20"
+                    : "border-purple-200 dark:border-purple-900/50 bg-card hover:border-purple-500"
+                }`}
               >
+                {plan.popular && (
+                  <span className="absolute -top-3 right-4 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    Khuyên Dùng
+                  </span>
+                )}
+
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-xl font-bold text-purple-600 dark:text-purple-400">
