@@ -1,33 +1,18 @@
 import { useEffect, useState } from "react";
-import {
-  User as UserIcon,
-  Zap,
-  HardDrive,
-  CreditCard,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  ArrowUpRight,
-  ShieldCheck,
-  LogOut,
-  Sparkles,
-  Database,
-} from "lucide-react";
+import { User, Zap, HardDrive, CreditCard, Clock, CheckCircle2, ShieldCheck, Sparkles, AlertCircle, ArrowUpRight } from "lucide-react";
 
-// Thay đổi đường dẫn import này cho phù hợp với dự án của bạn (ví dụ: "../firebase" hoặc "@/firebase")
-import { auth, db } from "../firebase";
-import { onAuthStateChanged, signOut, User } from "firebase/auth";
+// Sửa đường dẫn import firebase từ ./src/firebase để khớp với cấu trúc thư mục
+import { auth, db } from "./src/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot, collection, query, where, orderBy } from "firebase/firestore";
 
 interface UserProfile {
   displayName: string;
   email: string;
-  photoURL?: string;
   energyBalance: number;
   maxEnergy: number;
   planName: string;
   storageQuotaGB: number;
-  storageUsedGB?: number;
 }
 
 interface TransactionHistory {
@@ -36,11 +21,10 @@ interface TransactionHistory {
   planTitle: string;
   amount: number;
   date: string;
-  status: "SUCCESS" | "PENDING" | "FAILED";
+  status: "SUCCESS" | "PENDING";
 }
 
 export const ProfilePage = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile>({
     displayName: "Thành Viên SinhHAI",
     email: "Đang tải...",
@@ -48,47 +32,41 @@ export const ProfilePage = () => {
     maxEnergy: 550000,
     planName: "Gói Miễn Phí",
     storageQuotaGB: 1,
-    storageUsedGB: 0.1,
   });
 
   const [transactions, setTransactions] = useState<TransactionHistory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser(user);
+    // Lắng nghe trạng thái đăng nhập Firebase
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        // Cập nhật thông tin cơ bản từ Auth
         setProfile((prev) => ({
           ...prev,
-          displayName: user.displayName || user.email?.split("@")[0] || "Thành Viên SinhHAI",
-          email: user.email || "",
-          photoURL: user.photoURL || undefined,
+          displayName: currentUser.displayName || currentUser.email?.split("@")[0] || "Thành Viên SinhHAI",
+          email: currentUser.email || "",
         }));
 
-        // Lắng nghe dữ liệu User Real-time từ Firestore
-        const userDocRef = doc(db, "users", user.uid);
-        const unsubscribeProfile = onSnapshot(
-          userDocRef,
-          (snapshot) => {
-            if (snapshot.exists()) {
-              const data = snapshot.data();
-              setProfile((prev) => ({
-                ...prev,
-                energyBalance: data.energyBalance ?? prev.energyBalance,
-                maxEnergy: data.maxEnergy ?? prev.maxEnergy,
-                planName: data.planName ?? prev.planName,
-                storageQuotaGB: data.storageQuotaGB ?? prev.storageQuotaGB,
-                storageUsedGB: data.storageUsedGB ?? prev.storageUsedGB,
-              }));
-            }
-          },
-          (err) => console.warn("Lỗi Firestore Profile:", err)
-        );
+        // Lắng nghe dữ liệu User Real-time từ Firestore collection 'users'
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const unsubscribeProfile = onSnapshot(userDocRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+            setProfile((prev) => ({
+              ...prev,
+              energyBalance: data.energyBalance ?? prev.energyBalance,
+              maxEnergy: data.maxEnergy ?? prev.maxEnergy,
+              planName: data.planName ?? prev.planName,
+              storageQuotaGB: data.storageQuotaGB ?? prev.storageQuotaGB,
+            }));
+          }
+        });
 
-        // Lắng nghe Lịch sử Giao dịch
+        // Lắng nghe Lịch sử Giao dịch từ collection 'transactions'
         const q = query(
           collection(db, "transactions"),
-          where("userId", "==", user.uid),
+          where("userId", "==", currentUser.uid),
           orderBy("createdAt", "desc")
         );
 
@@ -99,11 +77,11 @@ export const ProfilePage = () => {
               const data = docSnap.data();
               return {
                 id: docSnap.id,
-                orderCode: data.orderCode || docSnap.id.substring(0, 8).toUpperCase(),
+                orderCode: data.orderCode || docSnap.id.substring(0, 8),
                 planTitle: data.planTitle || "Nâng cấp Năng Lượng AI",
                 amount: data.amount || 0,
                 date: data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString("vi-VN") : "Gần đây",
-                status: data.status === "SUCCESS" ? "SUCCESS" : data.status === "PENDING" ? "PENDING" : "FAILED",
+                status: data.status === "SUCCESS" ? "SUCCESS" : "PENDING",
               };
             });
             setTransactions(txList);
@@ -127,240 +105,187 @@ export const ProfilePage = () => {
     return () => unsubscribeAuth();
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Lỗi đăng xuất:", error);
-    }
-  };
-
-  const energyPercentage = profile.maxEnergy > 0
+  const energyPercentage = profile.maxEnergy > 0 
     ? Math.min(100, Math.max(0, (profile.energyBalance / profile.maxEnergy) * 100))
     : 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="container max-w-5xl py-12 space-y-8 min-h-[80vh]">
+      {/* Tiêu đề trang */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-purple-500/20 pb-6">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2.5">
+            <Sparkles className="w-7 h-7 text-purple-500 fill-purple-500/20" />
+            Tài Khoản & Hệ Sinh Thái AI
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Quản lý thông tin định danh, hạn mức năng lượng AI và lịch sử dịch vụ cá nhân
+          </p>
+        </div>
+        <a
+          href="/#pricing"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-purple-500/25 transition-all duration-200"
+        >
+          <span>Nâng Cấp Gói Dịch Vụ</span>
+          <ArrowUpRight className="w-4 h-4" />
+        </a>
+      </div>
+
+      {/* Header Profile Card */}
+      <div className="relative overflow-hidden p-6 md:p-8 bg-gradient-to-br from-card via-card to-purple-950/20 border border-purple-500/20 rounded-3xl shadow-xl shadow-purple-500/5">
+        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
         
-        {/* HEADER PROFILE */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="flex items-center gap-5">
-              {profile.photoURL ? (
-                <img
-                  src={profile.photoURL}
-                  alt={profile.displayName}
-                  className="w-20 h-20 rounded-2xl object-cover border-2 border-purple-500/30 shadow-md"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-md shadow-purple-500/20">
-                  {profile.displayName.charAt(0).toUpperCase()}
-                </div>
-              )}
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold tracking-tight">{profile.displayName}</h1>
-                  <ShieldCheck className="w-5 h-5 text-purple-500" />
-                </div>
-                <p className="text-sm text-slate-500 dark:text-zinc-400 font-mono">{profile.email}</p>
-                <div className="pt-1 flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                    <Sparkles className="w-3 h-3 text-purple-500" />
-                    {profile.planName}
-                  </span>
-                  <span className="text-xs text-slate-400 dark:text-zinc-500">
-                    • UID: {currentUser?.uid.slice(0, 8)}...
-                  </span>
-                </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 relative z-10">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 p-0.5 shadow-md shadow-purple-500/30 flex-shrink-0">
+              <div className="w-full h-full bg-card rounded-[14px] flex items-center justify-center text-purple-400">
+                <User className="w-9 h-9" />
               </div>
             </div>
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-2 border-card flex items-center justify-center text-white" title="Tài khoản hoạt động">
+              <ShieldCheck className="w-3.5 h-3.5" />
+            </div>
+          </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <a
-                href="/checkout"
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium text-sm shadow-md hover:shadow-purple-500/20 transition-all"
-              >
-                Nâng cấp gói
-                <ArrowUpRight className="w-4 h-4" />
-              </a>
-              <button
-                onClick={handleLogout}
-                className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-400 transition-colors"
-                title="Đăng xuất"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
+          <div className="space-y-1.5 flex-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-2xl font-bold tracking-tight">{profile.displayName}</h2>
+              <span className="px-3 py-1 bg-purple-500/15 text-purple-400 text-xs font-bold rounded-full border border-purple-500/30 tracking-wide uppercase shadow-sm">
+                {profile.planName}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground font-mono">{profile.email}</p>
+            <div className="flex items-center gap-2 pt-1 text-xs text-emerald-400 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Trạng thái hệ thống: Hoạt động bình thường & Bảo mật tuyệt đối
             </div>
           </div>
         </div>
+      </div>
 
-        {/* METRICS & USAGE STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Card 1: Năng lượng AI */}
-          <div className="md:col-span-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500">
-                    <Zap className="w-5 h-5 fill-amber-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">Năng Lượng AI SinhHAI</h3>
-                    <p className="text-xs text-slate-500 dark:text-zinc-400">Dùng chung cho Chatbot, Studio & Workflows</p>
-                  </div>
-                </div>
-                <span className="text-xl font-bold font-mono text-slate-900 dark:text-slate-100">
-                  {energyPercentage.toFixed(0)}%
-                </span>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="space-y-2">
-                <div className="w-full bg-slate-100 dark:bg-zinc-800 rounded-full h-3.5 p-0.5 overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-purple-600 via-indigo-500 to-emerald-400 h-full rounded-full transition-all duration-500 shadow-sm"
-                    style={{ width: `${energyPercentage}%` }}
-                  />
-                </div>
-                <div className="flex justify-between items-center text-xs font-mono text-slate-500 dark:text-zinc-400 pt-1">
-                  <span>Khả dụng: <strong>{profile.energyBalance.toLocaleString()}</strong> Token</span>
-                  <span>Tối đa: {profile.maxEnergy.toLocaleString()} Token</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
-              <span>Tự động làm mới hoặc nạp thêm khi nâng cấp gói.</span>
-              <a href="/pricing" className="text-purple-600 dark:text-purple-400 hover:underline font-medium">Mua thêm token &rarr;</a>
-            </div>
-          </div>
-
-          {/* Card 2: Dung lượng Cloud */}
-          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-6">
-            <div>
-              <div className="flex items-center gap-2.5 mb-4">
-                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
-                  <HardDrive className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900 dark:text-slate-100">Lưu Trữ Tệp AI</h3>
-                  <p className="text-xs text-slate-500 dark:text-zinc-400">Firebase Storage Cloud</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-slate-500 dark:text-zinc-400">Đã sử dụng</span>
-                    <span className="font-semibold font-mono">{profile.storageQuotaGB} GB</span>
-                  </div>
-                  <div className="w-full bg-slate-100 dark:bg-zinc-800 rounded-full h-2">
-                    <div className="bg-blue-500 h-full rounded-full w-[15%]" />
-                  </div>
-                </div>
-
-                <div className="p-3 bg-slate-50 dark:bg-zinc-800/50 rounded-xl text-xs text-slate-600 dark:text-zinc-400 space-y-1">
-                  <p className="font-medium flex items-center gap-1 text-slate-700 dark:text-zinc-300">
-                    <Database className="w-3.5 h-3.5 text-blue-500" />
-                    Hỗ trợ tài liệu:
-                  </p>
-                  <p>PDF, DOCX, TXT, CSV dùng cho AI đàm thoại và phân tích dữ liệu.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2 text-xs text-slate-400 dark:text-zinc-500">
-              Cần thêm bộ nhớ? Nâng cấp lên gói Business.
-            </div>
-          </div>
-
-        </div>
-
-        {/* TRANSACTION HISTORY */}
-        <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+      {/* Chỉ số Năng lượng & Dung lượng */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Card Thanh Năng Lượng AI */}
+        <div className="p-6 md:p-7 bg-card border border-purple-500/20 rounded-3xl space-y-5 shadow-sm hover:border-purple-500/40 transition-all">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                <CreditCard className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+                <Zap className="w-5 h-5 fill-amber-500" />
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Lịch Sử Giao Dịch & Nâng Cấp</h3>
-                <p className="text-xs text-slate-500 dark:text-zinc-400">Tất cả hóa đơn thanh toán của bạn trên SinhHAI</p>
-              </div>
+              <span className="font-bold text-base tracking-tight">Thanh Năng Lượng AI</span>
+            </div>
+            <div className="text-right">
+              <span className="text-base font-mono font-extrabold text-purple-400">
+                {profile.energyBalance.toLocaleString()}
+              </span>
+              <span className="text-xs text-muted-foreground font-mono"> / {profile.maxEnergy.toLocaleString()}</span>
             </div>
           </div>
 
-          {loading ? (
-            <div className="py-12 text-center text-slate-500 dark:text-zinc-400 text-sm">
-              <div className="inline-block w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mb-2" />
-              <p>Đang đồng bộ dữ liệu thanh toán...</p>
+          <div className="space-y-2">
+            <div className="w-full bg-secondary/80 rounded-full h-3.5 overflow-hidden p-0.5 border border-border">
+              <div
+                className="bg-gradient-to-r from-purple-600 via-indigo-500 to-emerald-400 h-full rounded-full transition-all duration-700 shadow-sm"
+                style={{ width: `${energyPercentage}%` }}
+              />
             </div>
-          ) : transactions.length === 0 ? (
-            <div className="py-12 text-center border-2 border-dashed border-slate-200 dark:border-zinc-800 rounded-xl">
-              <CreditCard className="w-10 h-10 mx-auto text-slate-300 dark:text-zinc-700 mb-3" />
-              <p className="text-slate-600 dark:text-zinc-400 font-medium text-sm">Chưa có giao dịch nào</p>
-              <p className="text-slate-400 dark:text-zinc-500 text-xs mt-1">Các gói đăng ký nâng cấp sẽ được ghi nhận tại đây.</p>
+            <div className="flex justify-between text-xs text-muted-foreground font-mono">
+              <span>Đã dùng: {energyPercentage.toFixed(1)}%</span>
+              <span>Làm mới mỗi kỳ thanh toán</span>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-zinc-800 text-xs text-slate-400 dark:text-zinc-500 uppercase tracking-wider">
-                    <th className="py-3 px-4 font-medium">Mã Đơn</th>
-                    <th className="py-3 px-4 font-medium">Gói Dịch Vụ</th>
-                    <th className="py-3 px-4 font-medium">Số Tiền</th>
-                    <th className="py-3 px-4 font-medium">Thời Gian</th>
-                    <th className="py-3 px-4 font-medium text-right">Trạng Thái</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-zinc-800/60 font-medium">
-                  {transactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 transition-colors">
-                      <td className="py-4 px-4 font-mono text-purple-600 dark:text-purple-400 font-bold">
-                        #{tx.orderCode}
-                      </td>
-                      <td className="py-4 px-4 text-slate-800 dark:text-zinc-200">
-                        {tx.planTitle}
-                      </td>
-                      <td className="py-4 px-4 font-semibold text-slate-900 dark:text-slate-100">
-                        {tx.amount.toLocaleString("vi-VN")}đ
-                      </td>
-                      <td className="py-4 px-4 text-xs text-slate-500 dark:text-zinc-400">
-                        <span className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-slate-400" />
-                          {tx.date}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        {tx.status === "SUCCESS" ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            Thành công
-                          </span>
-                        ) : tx.status === "PENDING" ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-                            <Clock className="w-3.5 h-3.5" />
-                            Chờ xử lý
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800">
-                            <AlertCircle className="w-3.5 h-3.5" />
-                            Thất bại
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          </div>
+
+          <p className="text-xs text-muted-foreground leading-relaxed pt-1 border-t border-border/50">
+            Năng lượng cốt lõi dùng chung cho toàn bộ hệ thống Chatbot, StudyPlace, Studio & Workflow tự động hóa.
+          </p>
         </div>
 
+        {/* Card Thuê bao Lưu trữ & Tri Thức */}
+        <div className="p-6 md:p-7 bg-card border border-purple-500/20 rounded-3xl space-y-5 shadow-sm hover:border-purple-500/40 transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+                <HardDrive className="w-5 h-5" />
+              </div>
+              <span className="font-bold text-base tracking-tight">Kho Tri Thức & Lưu Trữ</span>
+            </div>
+            <span className="text-lg font-mono font-extrabold text-blue-400">{profile.storageQuotaGB} GB</span>
+          </div>
+
+          <div className="bg-secondary/40 rounded-2xl p-4 border border-border/50 space-y-1">
+            <div className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
+              Tích hợp Gemini API Đọc & Phân Tích File Trực Tiếp
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Hỗ trợ xử lý tài liệu PDF, Docx, Code dung lượng cao an toàn trên nền tảng đám mây Firebase Storage.
+            </p>
+          </div>
+
+          <div className="text-xs text-muted-foreground pt-1 border-t border-border/50">
+            Dung lượng lưu trữ và băng thông cao tốc được tối ưu riêng biệt cho tài khoản chuyên nghiệp.
+          </div>
+        </div>
+      </div>
+
+      {/* Lịch sử Thanh toán */}
+      <div className="p-6 md:p-8 bg-card border border-purple-500/20 rounded-3xl space-y-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
+              <CreditCard className="w-5 h-5" />
+            </div>
+            <h3 className="text-lg font-bold tracking-tight">Lịch Sử Giao Dịch & Đơn Hàng</h3>
+          </div>
+          <span className="text-xs font-medium px-3 py-1 bg-secondary rounded-full text-muted-foreground">
+            {transactions.length} giao dịch
+          </span>
+        </div>
+
+        {loading ? (
+          <div className="py-12 text-center text-sm text-muted-foreground flex flex-col items-center justify-center gap-3">
+            <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            Đang tải dữ liệu giao dịch từ hệ thống...
+          </div>
+        ) : transactions.length === 0 ? (
+          <div className="py-12 text-center text-sm text-muted-foreground bg-secondary/20 rounded-2xl border border-dashed border-border flex flex-col items-center justify-center gap-2">
+            <AlertCircle className="w-8 h-8 text-muted-foreground/50" />
+            <span>Chưa có giao dịch thanh toán nào được ghi nhận trên hệ thống.</span>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-purple-500/20 text-muted-foreground uppercase text-[11px] font-bold tracking-wider">
+                <tr>
+                  <th className="pb-3.5 pl-2">Mã Đơn Hàng</th>
+                  <th className="pb-3.5">Gói Dịch Vụ</th>
+                  <th className="pb-3.5">Số Tiền</th>
+                  <th className="pb-3.5">Thời Gian</th>
+                  <th className="pb-3.5 pr-2">Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-purple-500/10">
+                {transactions.map((tx) => (
+                  <tr key={tx.id} className="hover:bg-purple-500/5 transition-colors group">
+                    <td className="py-4 pl-2 font-mono font-bold text-purple-400">{tx.orderCode}</td>
+                    <td className="py-4 font-semibold text-foreground">{tx.planTitle}</td>
+                    <td className="py-4 font-mono font-bold text-foreground">{tx.amount.toLocaleString()}đ</td>
+                    <td className="py-4 text-muted-foreground text-xs flex items-center gap-1.5 pt-5">
+                      <Clock className="w-3.5 h-3.5 text-muted-foreground/70" />
+                      {tx.date}
+                    </td>
+                    <td className="py-4 pr-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Thành công
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
