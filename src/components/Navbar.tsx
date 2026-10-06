@@ -34,9 +34,6 @@ interface RouteProps {
   label: string;
 }
 
-// Đường dẫn tới trang Payment / Checkout
-const PAYMENT_PATH = "/checkout";
-
 const baseRouteList: RouteProps[] = [
   {
     href: "#features",
@@ -94,7 +91,6 @@ export const Navbar = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isAuthOpen]);
 
-  // Xử lý click Anchor link (#features, #pricing...) từ trang bất kỳ
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     setIsOpen(false);
     if (window.location.pathname !== "/" && window.location.pathname !== "") {
@@ -103,14 +99,12 @@ export const Navbar = () => {
     }
   };
 
-  // Chuyển hướng tới trang Thanh toán
   const handleNavigateToCheckout = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpen(false);
-    window.location.href = PAYMENT_PATH;
+    window.location.href = "/checkout";
   };
 
-  // Chuyển hướng tới trang Hồ sơ
   const handleNavigateToProfile = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpen(false);
@@ -217,7 +211,6 @@ export const Navbar = () => {
                       </a>
                     ))}
 
-                    {/* Nút Hồ Sơ Mobile (Khi đã đăng nhập) */}
                     {user && (
                       <a
                         href="/profile"
@@ -229,9 +222,8 @@ export const Navbar = () => {
                       </a>
                     )}
 
-                    {/* Nút Thanh Toán Mobile */}
                     <a
-                      href={PAYMENT_PATH}
+                      href="/checkout"
                       onClick={handleNavigateToCheckout}
                       className="w-[160px] mt-2 flex items-center justify-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-3 rounded-md font-semibold text-xs shadow cursor-pointer transition-all"
                     >
@@ -283,7 +275,6 @@ export const Navbar = () => {
                 </a>
               ))}
 
-              {/* Nút Hồ Sơ trên Navigation Menu Desktop */}
               {user && (
                 <a
                   href="/profile"
@@ -296,11 +287,9 @@ export const Navbar = () => {
               )}
             </nav>
 
-            {/* Desktop Right Actions */}
             <div className="hidden md:flex gap-2 items-center flex-shrink-0">
-              {/* Nút Thanh Toán Desktop */}
               <a
-                href={PAYMENT_PATH}
+                href="/checkout"
                 onClick={handleNavigateToCheckout}
                 className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow hover:shadow-md transition-all cursor-pointer"
               >
