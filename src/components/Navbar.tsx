@@ -37,11 +37,11 @@ interface RouteProps {
 const baseRouteList: RouteProps[] = [
   {
     href: "#features",
-    label: "Tính năng SinhHAI",
+    label: "Tính năng",
   },
   {
     href: "#pricing",
-    label: "Bảng giá gói cước",
+    label: "Bảng giá",
   },
   {
     href: "#faq",
@@ -99,10 +99,11 @@ export const Navbar = () => {
     }
   };
 
-  const handleNavigateToCheckout = (e: React.MouseEvent) => {
+  const handleNavigateToPayment = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpen(false);
-    window.location.href = "/checkout";
+    // Điều hướng sang trang thanh toán PaymentPage
+    window.location.href = "/payment";
   };
 
   const handleNavigateToProfile = (e: React.MouseEvent) => {
@@ -163,7 +164,7 @@ export const Navbar = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      if (window.location.pathname === "/profile") {
+      if (window.location.pathname === "/profile" || window.location.pathname === "/payment") {
         window.location.href = "/";
       }
     } catch (error) {
@@ -175,12 +176,12 @@ export const Navbar = () => {
     <>
       <header className="sticky border-b top-0 z-40 w-full bg-white/95 backdrop-blur dark:border-b-purple-900/40 dark:bg-background/95 border-purple-200">
         <NavigationMenu className="mx-auto max-w-full">
-          <NavigationMenuList className="container h-14 px-3 w-screen flex justify-between items-center gap-2">
+          <NavigationMenuList className="container h-12 px-3 w-screen flex justify-between items-center gap-2">
             <NavigationMenuItem className="font-bold flex flex-shrink-0">
               <a
                 rel="noreferrer noopener"
                 href="/"
-                className="font-bold text-lg flex items-center gap-1.5 text-purple-700 dark:text-purple-400"
+                className="font-bold text-base flex items-center gap-1.5 text-purple-700 dark:text-purple-400"
               >
                 <LogoIcon />
                 SinhHAI
@@ -188,7 +189,7 @@ export const Navbar = () => {
             </NavigationMenuItem>
 
             {/* Mobile Nav */}
-            <span className="flex md:hidden items-center gap-1.5">
+            <span className="flex md:hidden items-center gap-1">
               <ModeToggle />
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger className="p-1.5">
@@ -197,39 +198,39 @@ export const Navbar = () => {
                 </SheetTrigger>
                 <SheetContent side={"left"}>
                   <SheetHeader>
-                    <SheetTitle className="font-bold text-lg text-purple-600">Nền tảng SinhHAI</SheetTitle>
+                    <SheetTitle className="font-bold text-base text-purple-600">Nền tảng SinhHAI</SheetTitle>
                   </SheetHeader>
-                  <nav className="flex flex-col justify-center items-center gap-2 mt-4">
+                  <nav className="flex flex-col justify-center items-center gap-1.5 mt-4 text-xs">
                     {baseRouteList.map(({ href, label }: RouteProps) => (
                       <a
                         key={label}
                         href={href}
                         onClick={(e) => handleAnchorClick(e, href)}
-                        className={`${buttonVariants({ variant: "ghost" })} text-sm`}
+                        className={`${buttonVariants({ variant: "ghost" })} text-xs h-8 px-3`}
                       >
                         {label}
                       </a>
                     ))}
 
+                    <a
+                      href="/payment"
+                      onClick={handleNavigateToPayment}
+                      className={`${buttonVariants({ variant: "ghost" })} text-xs h-8 px-3 font-medium flex items-center gap-1.5 text-purple-600 dark:text-purple-400`}
+                    >
+                      <CreditCard className="w-3.5 h-3.5" />
+                      Thanh toán
+                    </a>
+
                     {user && (
                       <a
                         href="/profile"
                         onClick={handleNavigateToProfile}
-                        className={`${buttonVariants({ variant: "ghost" })} text-sm text-purple-600 dark:text-purple-400 font-semibold flex items-center gap-1.5`}
+                        className={`${buttonVariants({ variant: "ghost" })} text-xs h-8 px-3 text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1.5`}
                       >
-                        <User className="w-4 h-4" />
+                        <User className="w-3.5 h-3.5" />
                         Hồ sơ của tôi
                       </a>
                     )}
-
-                    <a
-                      href="/checkout"
-                      onClick={handleNavigateToCheckout}
-                      className="w-[160px] mt-2 flex items-center justify-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-3 rounded-md font-semibold text-xs shadow cursor-pointer transition-all"
-                    >
-                      <CreditCard className="w-4 h-4" />
-                      Thanh toán
-                    </a>
 
                     {user ? (
                       <Button
@@ -239,7 +240,7 @@ export const Navbar = () => {
                         }}
                         variant="destructive"
                         size="sm"
-                        className="w-[160px] mt-2 flex gap-1.5 text-xs"
+                        className="w-[140px] mt-2 h-7 flex gap-1.5 text-xs"
                       >
                         <LogOut className="w-3.5 h-3.5" />
                         Đăng xuất
@@ -251,7 +252,7 @@ export const Navbar = () => {
                           setIsAuthOpen(true);
                         }}
                         size="sm"
-                        className="w-[160px] mt-2 flex gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs"
+                        className="w-[140px] mt-2 h-7 flex gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-normal"
                       >
                         <LogIn className="w-3.5 h-3.5" />
                         Đăng nhập
@@ -263,49 +264,50 @@ export const Navbar = () => {
             </span>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex gap-1 items-center flex-shrink text-xs lg:text-sm">
+            <nav className="hidden md:flex gap-0.5 items-center flex-shrink text-xs">
               {baseRouteList.map((route: RouteProps, i) => (
                 <a
                   href={route.href}
                   key={i}
                   onClick={(e) => handleAnchorClick(e, route.href)}
-                  className="px-2.5 py-1.5 rounded-md hover:bg-purple-50 dark:hover:bg-purple-950/50 hover:text-purple-600 text-foreground/80 font-medium transition-colors"
+                  className="px-2 py-1 rounded-md hover:bg-purple-50 dark:hover:bg-purple-950/50 hover:text-purple-600 text-foreground/80 font-normal text-[13px] transition-colors"
                 >
                   {route.label}
                 </a>
               ))}
 
+              <a
+                href="/payment"
+                onClick={handleNavigateToPayment}
+                className="px-2 py-1 rounded-md hover:bg-purple-50 dark:hover:bg-purple-950/50 text-foreground/80 hover:text-purple-600 font-normal text-[13px] transition-colors flex items-center gap-1"
+              >
+                <CreditCard className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                Thanh toán
+              </a>
+
               {user && (
                 <a
                   href="/profile"
                   onClick={handleNavigateToProfile}
-                  className="px-2.5 py-1.5 rounded-md text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50 font-semibold transition-colors flex items-center gap-1"
+                  className="px-2 py-1 rounded-md text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50 font-medium text-[13px] transition-colors flex items-center gap-1"
                 >
                   <User className="w-3.5 h-3.5" />
-                  Hồ sơ của tôi
+                  Hồ sơ
                 </a>
               )}
             </nav>
 
-            <div className="hidden md:flex gap-2 items-center flex-shrink-0">
-              <a
-                href="/checkout"
-                onClick={handleNavigateToCheckout}
-                className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow hover:shadow-md transition-all cursor-pointer"
-              >
-                <CreditCard className="w-3.5 h-3.5" />
-                Thanh toán
-              </a>
-
+            {/* Desktop Actions */}
+            <div className="hidden md:flex gap-1.5 items-center flex-shrink-0">
               {user ? (
                 <div className="flex items-center gap-1.5">
                   <a
                     href="/profile"
                     onClick={handleNavigateToProfile}
-                    className="flex items-center gap-1 px-2.5 py-1.5 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-md text-xs font-medium transition-all"
+                    className="flex items-center gap-1 px-2 py-1 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-md text-xs font-normal transition-all"
                   >
-                    <User className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                    <span className="max-w-[90px] lg:max-w-[120px] truncate">
+                    <User className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                    <span className="max-w-[80px] lg:max-w-[110px] truncate text-[12px]">
                       {user.displayName || user.email}
                     </span>
                   </a>
@@ -313,19 +315,19 @@ export const Navbar = () => {
                     onClick={handleLogout}
                     variant="outline"
                     size="sm"
-                    className="h-8 px-2 text-xs flex gap-1 border-purple-300 hover:bg-purple-50 text-purple-700 dark:border-purple-800 dark:text-purple-300"
+                    className="h-7 px-2 text-xs flex gap-1 border-purple-300 hover:bg-purple-50 text-purple-700 dark:border-purple-800 dark:text-purple-300 font-normal"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
+                    <LogOut className="w-3 h-3" />
                     Đăng xuất
                   </Button>
                 </div>
               ) : (
                 <Button
                   size="sm"
-                  className="h-8 px-3 text-xs flex gap-1 bg-purple-600 hover:bg-purple-700 text-white font-medium shadow"
+                  className="h-7 px-2.5 text-xs flex gap-1 bg-purple-600 hover:bg-purple-700 text-white font-normal shadow-sm"
                   onClick={() => setIsAuthOpen(true)}
                 >
-                  <LogIn className="w-3.5 h-3.5" />
+                  <LogIn className="w-3 h-3" />
                   Đăng nhập
                 </Button>
               )}
@@ -353,7 +355,7 @@ export const Navbar = () => {
               <X className="h-4 w-4" />
             </button>
 
-            <h2 className="text-xl font-bold text-center mb-1 text-purple-600 dark:text-purple-400">
+            <h2 className="text-lg font-bold text-center mb-1 text-purple-600 dark:text-purple-400">
               {isRegister ? "Tạo tài khoản SinhHAI" : "Đăng nhập SinhHAI"}
             </h2>
             <p className="text-[11px] text-center text-muted-foreground mb-4">
@@ -394,7 +396,7 @@ export const Navbar = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs h-9"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs h-8"
                 disabled={loading}
               >
                 {loading ? "Đang xử lý..." : isRegister ? "Tạo tài khoản" : "Đăng nhập với Email"}
