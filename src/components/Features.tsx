@@ -75,9 +75,9 @@ export const Features = () => {
           Hệ sinh thái SinhHAI
         </Badge>
         <h2 className="text-3xl lg:text-4xl font-bold">
-          Sức mạnh đột phá từ{" "}
+          Sức mạnh công nghệ từ siêu tốc thông minh của{" "}
           <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-400 text-transparent bg-clip-text">
-            SinhHAI AI
+            SinhHAI 
           </span>
         </h2>
         <p className="text-muted-foreground text-base max-w-2xl mx-auto">
