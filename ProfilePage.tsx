@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { User, Zap, HardDrive, CreditCard, Clock, CheckCircle2 } from "lucide-react";
+
+// Import Firebase
+import { auth, db } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, onSnapshot, collection, query, where, orderBy } from "firebase/firestore";
 
 interface UserProfile {
   displayName: string;
@@ -19,35 +24,96 @@ interface TransactionHistory {
   status: "SUCCESS" | "PENDING";
 }
 
-export const UserProfilePage = () => {
-  // Demo State (Thực tế sẽ fetch từ Firebase Firestore theo Auth CurrentUser)
+export const ProfilePage = () => {
   const [profile, setProfile] = useState<UserProfile>({
     displayName: "Thành Viên SinhHAI",
-    email: "user@sinhhai.com",
-    energyBalance: 320000,
+    email: "Đang tải...",
+    energyBalance: 0,
     maxEnergy: 550000,
-    planName: "Gói Full Tính Năng",
-    storageQuotaGB: 5,
+    planName: "Gói Miễn Phí",
+    storageQuotaGB: 1,
   });
 
-  const [transactions, setTransactions] = useState<TransactionHistory[]>([
-    {
-      id: "tx_01",
-      orderCode: "SH839120",
-      planTitle: "Gói Full Tính Năng",
-      amount: 499000,
-      date: "06/10/2026 14:30",
-      status: "SUCCESS",
-    },
-  ]);
+  const [transactions, setTransactions] = useState<TransactionHistory[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const energyPercentage = Math.min(100, (profile.energyBalance / profile.maxEnergy) * 100);
+  useEffect(() => {
+    // Lắng nghe trạng thái đăng nhập Firebase
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        // Cập nhật thông tin cơ bản từ Auth
+        setProfile((prev) => ({
+          ...prev,
+          displayName: currentUser.displayName || currentUser.email?.split("@")[0] || "Thành Viên SinhHAI",
+          email: currentUser.email || "",
+        }));
+
+        // Lắng nghe dữ liệu User Real-time từ Firestore collection 'users'
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const unsubscribeProfile = onSnapshot(userDocRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+            setProfile((prev) => ({
+              ...prev,
+              energyBalance: data.energyBalance ?? prev.energyBalance,
+              maxEnergy: data.maxEnergy ?? prev.maxEnergy,
+              planName: data.planName ?? prev.planName,
+              storageQuotaGB: data.storageQuotaGB ?? prev.storageQuotaGB,
+            }));
+          }
+        });
+
+        // Lắng nghe Lịch sử Giao dịch từ collection 'transactions'
+        const q = query(
+          collection(db, "transactions"),
+          where("userId", "==", currentUser.uid),
+          orderBy("createdAt", "desc")
+        );
+
+        const unsubscribeTx = onSnapshot(
+          q,
+          (snapshot) => {
+            const txList: TransactionHistory[] = snapshot.docs.map((docSnap) => {
+              const data = docSnap.data();
+              return {
+                id: docSnap.id,
+                orderCode: data.orderCode || docSnap.id.substring(0, 8),
+                planTitle: data.planTitle || "Nâng cấp Năng Lượng AI",
+                amount: data.amount || 0,
+                date: data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString("vi-VN") : "Gần đây",
+                status: data.status === "SUCCESS" ? "SUCCESS" : "PENDING",
+              };
+            });
+            setTransactions(txList);
+            setLoading(false);
+          },
+          (error) => {
+            console.warn("Lỗi tải lịch sử giao dịch:", error);
+            setLoading(false);
+          }
+        );
+
+        return () => {
+          unsubscribeProfile();
+          unsubscribeTx();
+        };
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
+  const energyPercentage = profile.maxEnergy > 0 
+    ? Math.min(100, Math.max(0, (profile.energyBalance / profile.maxEnergy) * 100))
+    : 0;
 
   return (
-    <div className="container max-w-5xl py-10 space-y-8">
+    <div className="container max-w-5xl py-10 space-y-8 min-h-[70vh]">
       {/* Header Profile */}
       <div className="flex items-center gap-4 p-6 bg-card border border-purple-500/20 rounded-2xl shadow-sm">
-        <div className="w-16 h-16 rounded-full bg-purple-600/20 border border-purple-500 flex items-center justify-center text-purple-500">
+        <div className="w-16 h-16 rounded-full bg-purple-600/20 border border-purple-500 flex items-center justify-center text-purple-500 flex-shrink-0">
           <User className="w-8 h-8" />
         </div>
         <div>
@@ -106,7 +172,9 @@ export const UserProfilePage = () => {
           Lịch Sử Thanh Toán & Nâng Cấp
         </h3>
 
-        {transactions.length === 0 ? (
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Đang tải dữ liệu giao dịch...</p>
+        ) : transactions.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có giao dịch nào được ghi nhận.</p>
         ) : (
           <div className="overflow-x-auto">
