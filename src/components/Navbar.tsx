@@ -62,12 +62,10 @@ export const Navbar = () => {
   const [authError, setAuthError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Đảm bảo client-side rendering cho Portal
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Lắng nghe trạng thái đăng nhập Firebase
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -75,7 +73,6 @@ export const Navbar = () => {
     return () => unsubscribe();
   }, []);
 
-  // Đóng Modal Auth
   const closeAuthModal = () => {
     setIsAuthOpen(false);
     setAuthError("");
@@ -84,7 +81,6 @@ export const Navbar = () => {
     setLoading(false);
   };
 
-  // Lắng nghe phím ESC để đóng Modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isAuthOpen) {
@@ -95,32 +91,27 @@ export const Navbar = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isAuthOpen]);
 
-  // Xử lý click chuyển trang Anchor link thông minh (từ bất kỳ trang nào quay về Trang chủ)
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  // Xử lý click Anchor link (#features, #pricing...) từ trang bất kỳ
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     setIsOpen(false);
-    if (href.startsWith("#")) {
-      if (window.location.pathname !== "/") {
-        e.preventDefault();
-        window.location.href = "/" + href;
-      }
+    if (window.location.pathname !== "/" && window.location.pathname !== "") {
+      e.preventDefault();
+      window.location.href = "/" + href;
     }
   };
 
-  // Điều hướng đến Trang Thanh Toán (/checkout)
   const handleNavigateToCheckout = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpen(false);
     window.location.href = "/checkout";
   };
 
-  // Điều hướng đến Trang Hồ sơ (/profile)
   const handleNavigateToProfile = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsOpen(false);
     window.location.href = "/profile";
   };
 
-  // Đăng nhập Google
   const handleGoogleLogin = async () => {
     setAuthError("");
     try {
@@ -132,7 +123,6 @@ export const Navbar = () => {
     }
   };
 
-  // Đăng nhập Facebook
   const handleFacebookLogin = async () => {
     setAuthError("");
     try {
@@ -140,11 +130,10 @@ export const Navbar = () => {
       closeAuthModal();
     } catch (error: any) {
       console.error("Lỗi Facebook Login:", error);
-      setAuthError("Đăng nhập Facebook thất bại! Kiểm tra lại cài đặt App Facebook.");
+      setAuthError("Đăng nhập Facebook thất bại!");
     }
   };
 
-  // Đăng nhập / Đăng ký bằng Email & Mật khẩu
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
@@ -172,7 +161,6 @@ export const Navbar = () => {
     }
   };
 
-  // Đăng xuất
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -187,27 +175,26 @@ export const Navbar = () => {
   return (
     <>
       <header className="sticky border-b top-0 z-40 w-full bg-white/95 backdrop-blur dark:border-b-purple-900/40 dark:bg-background/95 border-purple-200">
-        <NavigationMenu className="mx-auto">
-          <NavigationMenuList className="container h-14 px-3 md:px-6 w-screen flex justify-between items-center">
-            <NavigationMenuItem className="font-bold flex">
+        <NavigationMenu className="mx-auto max-w-full">
+          <NavigationMenuList className="container h-14 px-3 w-screen flex justify-between items-center gap-2">
+            <NavigationMenuItem className="font-bold flex flex-shrink-0">
               <a
                 rel="noreferrer noopener"
                 href="/"
-                className="ml-1 font-bold text-lg flex items-center gap-2 text-purple-700 dark:text-purple-400"
+                className="font-bold text-lg flex items-center gap-1.5 text-purple-700 dark:text-purple-400"
               >
                 <LogoIcon />
                 SinhHAI
               </a>
             </NavigationMenuItem>
 
-            {/* Mobile nav */}
+            {/* Mobile Nav */}
             <span className="flex md:hidden items-center gap-1.5">
               <ModeToggle />
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger className="p-1.5">
-                  <Menu className="h-5 w-5 text-purple-700 dark:text-purple-300">
-                    <span className="sr-only">Thực đơn</span>
-                  </Menu>
+                  <Menu className="h-5 w-5 text-purple-700 dark:text-purple-300" />
+                  <span className="sr-only">Thực đơn</span>
                 </SheetTrigger>
                 <SheetContent side={"left"}>
                   <SheetHeader>
@@ -218,26 +205,24 @@ export const Navbar = () => {
                       <a
                         key={label}
                         href={href}
-                        onClick={(e) => handleNavClick(e, href)}
+                        onClick={(e) => handleAnchorClick(e, href)}
                         className={`${buttonVariants({ variant: "ghost" })} text-sm`}
                       >
                         {label}
                       </a>
                     ))}
 
-                    {/* Nút Hồ Sơ Trên Menu Mobile (Chỉ hiện khi đã Đăng Nhập) */}
                     {user && (
                       <a
                         href="/profile"
                         onClick={handleNavigateToProfile}
-                        className={`${buttonVariants({ variant: "ghost" })} text-sm text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1.5`}
+                        className={`${buttonVariants({ variant: "ghost" })} text-sm text-purple-600 dark:text-purple-400 font-semibold flex items-center gap-1.5`}
                       >
                         <User className="w-4 h-4" />
                         Hồ sơ của tôi
                       </a>
                     )}
 
-                    {/* Nút thanh toán Mobile */}
                     <a
                       href="/checkout"
                       onClick={handleNavigateToCheckout}
@@ -255,7 +240,7 @@ export const Navbar = () => {
                         }}
                         variant="destructive"
                         size="sm"
-                        className="w-[160px] mt-1 flex gap-1.5 text-xs"
+                        className="w-[160px] mt-2 flex gap-1.5 text-xs"
                       >
                         <LogOut className="w-3.5 h-3.5" />
                         Đăng xuất
@@ -267,7 +252,7 @@ export const Navbar = () => {
                           setIsAuthOpen(true);
                         }}
                         size="sm"
-                        className="w-[160px] mt-1 flex gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs"
+                        className="w-[160px] mt-2 flex gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs"
                       >
                         <LogIn className="w-3.5 h-3.5" />
                         Đăng nhập
@@ -278,29 +263,24 @@ export const Navbar = () => {
               </Sheet>
             </span>
 
-            {/* Desktop nav - Căn chỉnh chữ nhỏ nhắn, khoảng cách đều */}
-            <nav className="hidden md:flex gap-1 lg:gap-2 items-center">
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex gap-1 items-center flex-shrink text-xs lg:text-sm">
               {baseRouteList.map((route: RouteProps, i) => (
                 <a
                   href={route.href}
                   key={i}
-                  onClick={(e) => handleNavClick(e, route.href)}
-                  className={`text-sm font-medium hover:text-purple-600 transition-colors px-2.5 py-1.5 rounded-md ${buttonVariants({
-                    variant: "ghost",
-                  })}`}
+                  onClick={(e) => handleAnchorClick(e, route.href)}
+                  className="px-2.5 py-1.5 rounded-md hover:bg-purple-50 dark:hover:bg-purple-950/50 hover:text-purple-600 text-foreground/80 font-medium transition-colors"
                 >
                   {route.label}
                 </a>
               ))}
 
-              {/* Nút Hồ Sơ Nằm Trực Tiếp Trên Thanh Menu Desktop (Chỉ hiện khi đã Đăng Nhập) */}
               {user && (
                 <a
                   href="/profile"
                   onClick={handleNavigateToProfile}
-                  className={`text-sm text-purple-600 dark:text-purple-400 font-semibold hover:text-purple-700 transition-colors flex items-center gap-1 px-2.5 py-1.5 rounded-md ${buttonVariants({
-                    variant: "ghost",
-                  })}`}
+                  className="px-2.5 py-1.5 rounded-md text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50 font-semibold transition-colors flex items-center gap-1"
                 >
                   <User className="w-3.5 h-3.5" />
                   Hồ sơ của tôi
@@ -308,12 +288,11 @@ export const Navbar = () => {
               )}
             </nav>
 
-            <div className="hidden md:flex gap-2 items-center">
-              {/* Nút thanh toán Desktop */}
+            <div className="hidden md:flex gap-1.5 items-center flex-shrink-0">
               <a
                 href="/checkout"
                 onClick={handleNavigateToCheckout}
-                className="flex items-center gap-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-medium px-3 py-1.5 rounded-md shadow hover:shadow-md transition-all duration-200 cursor-pointer"
+                className="flex items-center gap-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-medium px-2.5 py-1.5 rounded-md shadow transition-all cursor-pointer"
               >
                 <CreditCard className="w-3.5 h-3.5" />
                 Thanh toán
@@ -324,10 +303,10 @@ export const Navbar = () => {
                   <a
                     href="/profile"
                     onClick={handleNavigateToProfile}
-                    className="flex items-center gap-1 px-2.5 py-1 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-md text-xs font-medium transition-all"
+                    className="flex items-center gap-1 px-2.5 py-1.5 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-md text-xs font-medium transition-all"
                   >
                     <User className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                    <span className="max-w-[100px] truncate">
+                    <span className="max-w-[90px] lg:max-w-[120px] truncate">
                       {user.displayName || user.email}
                     </span>
                   </a>
@@ -335,7 +314,7 @@ export const Navbar = () => {
                     onClick={handleLogout}
                     variant="outline"
                     size="sm"
-                    className="h-8 px-2.5 text-xs flex gap-1 border-purple-300 hover:bg-purple-50 text-purple-700 dark:border-purple-800 dark:text-purple-300"
+                    className="h-8 px-2 text-xs flex gap-1 border-purple-300 hover:bg-purple-50 text-purple-700 dark:border-purple-800 dark:text-purple-300"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     Đăng xuất
@@ -344,7 +323,7 @@ export const Navbar = () => {
               ) : (
                 <Button
                   size="sm"
-                  className="h-8 px-3 text-xs flex gap-1 bg-purple-600 hover:bg-purple-700 text-white font-medium shadow-sm"
+                  className="h-8 px-3 text-xs flex gap-1 bg-purple-600 hover:bg-purple-700 text-white font-medium shadow"
                   onClick={() => setIsAuthOpen(true)}
                 >
                   <LogIn className="w-3.5 h-3.5" />
@@ -368,11 +347,9 @@ export const Navbar = () => {
             className="relative w-full max-w-md bg-background rounded-xl p-6 shadow-2xl border border-purple-500/30 dark:border-purple-800 my-auto max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Nút X Đóng Popup */}
             <button
               onClick={closeAuthModal}
               className="absolute right-3 top-3 z-20 p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
-              title="Đóng (ESC)"
             >
               <X className="h-4 w-4" />
             </button>
@@ -380,8 +357,8 @@ export const Navbar = () => {
             <h2 className="text-xl font-bold text-center mb-1 text-purple-600 dark:text-purple-400">
               {isRegister ? "Tạo tài khoản SinhHAI" : "Đăng nhập SinhHAI"}
             </h2>
-            <p className="text-xs text-center text-muted-foreground mb-4">
-              Nhấn phím <kbd className="px-1.5 py-0.5 bg-muted rounded border text-[10px] font-mono">ESC</kbd> hoặc nút (X) để đóng
+            <p className="text-[11px] text-center text-muted-foreground mb-4">
+              Nhấn phím <kbd className="px-1 py-0.5 bg-muted rounded border text-[10px] font-mono">ESC</kbd> hoặc nút (X) để đóng
             </p>
 
             {authError && (
@@ -418,15 +395,14 @@ export const Navbar = () => {
 
               <Button
                 type="submit"
-                size="sm"
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs h-9"
                 disabled={loading}
               >
                 {loading ? "Đang xử lý..." : isRegister ? "Tạo tài khoản" : "Đăng nhập với Email"}
               </Button>
             </form>
 
-            <div className="relative my-4">
+            <div className="relative my-3">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-purple-200 dark:border-purple-900" />
               </div>
@@ -436,7 +412,7 @@ export const Navbar = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" onClick={handleGoogleLogin} className="flex gap-2 text-xs border-purple-200 hover:bg-purple-50 dark:border-purple-900">
+              <Button variant="outline" size="sm" onClick={handleGoogleLogin} className="flex gap-1.5 text-xs border-purple-200 hover:bg-purple-50 dark:border-purple-900 h-8">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -446,7 +422,7 @@ export const Navbar = () => {
                 Google
               </Button>
 
-              <Button variant="outline" size="sm" onClick={handleFacebookLogin} className="flex gap-2 text-xs border-purple-200 hover:bg-purple-50 dark:border-purple-900">
+              <Button variant="outline" size="sm" onClick={handleFacebookLogin} className="flex gap-1.5 text-xs border-purple-200 hover:bg-purple-50 dark:border-purple-900 h-8">
                 <svg className="w-3.5 h-3.5 fill-[#1877F2]" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
@@ -454,7 +430,7 @@ export const Navbar = () => {
               </Button>
             </div>
 
-            <div className="text-center text-xs text-muted-foreground mt-4">
+            <div className="text-center text-[11px] text-muted-foreground mt-3">
               {isRegister ? (
                 <p>
                   Đã có tài khoản?{" "}
